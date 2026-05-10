@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WIIRED Studio — Design & Deploy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<script src="https://js.stripe.com/v3/"></script>
+
+<style>
+  :root {
+    --burgundy: #7d2d45;
+    --burgundy-dark: #5e1f32;
+    --cream: #f5ede3;
+    --sky: #b8dde8;
+    --sky-light: #d6edf5;
+    --lilac: #c8a8d8;
+    --off-white: #faf6f1;
+    --charcoal: #1a1a1a;
+    --muted: #6b5a5a;
+    --border: rgba(125,45,69,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--off-white);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: var(--burgundy);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 1.3rem;
+    color: var(--sky-light); letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+  .nav-links a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(255,255,255,0.75);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--sky-light); }
+  .nav-cta {
+    background: transparent; border: 1.5px solid rgba(255,255,255,0.5);
+    color: #fff; font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 0.55rem 1.3rem;
+    border-radius: 2px; cursor: pointer; transition: all 0.2s;
+    text-decoration: none;
+  }
+  .nav-cta:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: var(--burgundy);
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 8rem 3rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg-text {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(8rem, 20vw, 18rem);
+    font-weight: 700; color: rgba(255,255,255,0.04);
+    white-space: nowrap; pointer-events: none;
+    user-select: none; letter-spacing: -0.04em;
+  }
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--sky); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .hero-tag::before {
+    content: ''; display: block;
+    width: 2rem; height: 1px; background: var(--sky);
+  }
+  .hero-title {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    font-weight: 700; color: var(--sky-light);
+    line-height: 0.9; letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .hero-sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic; font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+    color: rgba(255,255,255,0.65); margin-bottom: 3rem;
+  }
+  .hero-desc {
+    max-width: 480px;
+    font-size: 1rem; line-height: 1.7;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 2.5rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--sky-light); color: var(--burgundy-dark);
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.9rem 2.2rem; border: none; border-radius: 2px;
+    cursor: pointer; transition: all 0.25s; text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: #fff; transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent; color: rgba(255,255,255,0.8);
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.9rem 2.2rem; border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 2px; cursor: pointer; transition: all 0.25s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.75); color: #fff; }
+
+  .hero-scroll {
+    position: absolute; bottom: 2.5rem; right: 3rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    color: rgba(255,255,255,0.35);
+    font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em;
+  }
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  /* ── ABOUT ── */
+  #about {
+    padding: 7rem 3rem;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 5rem; align-items: center;
+    background: var(--cream);
+  }
+  .about-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--burgundy); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .about-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .about-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    line-height: 1.15; color: var(--burgundy-dark);
+    margin-bottom: 1.8rem;
+  }
+  .about-title em { font-style: italic; color: var(--burgundy); }
+  .about-body {
+    font-size: 1.05rem; line-height: 1.85;
+    color: var(--muted); margin-bottom: 2rem;
+  }
+  .about-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1.5rem; margin-top: 2.5rem;
+  }
+  .stat {
+    border-left: 2px solid var(--burgundy);
+    padding-left: 1.2rem;
+  }
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.2rem; font-weight: 700;
+    color: var(--burgundy); line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.8rem; color: var(--muted);
+    margin-top: 0.3rem; line-height: 1.4;
+  }
+  .about-visual {
+    background: var(--burgundy);
+    border-radius: 4px;
+    padding: 3rem 2.5rem;
+    position: relative; overflow: hidden;
+  }
+  .about-visual-bg {
+    position: absolute; top: -2rem; right: -2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 8rem; font-weight: 700;
+    color: rgba(255,255,255,0.05);
+    line-height: 1; pointer-events: none;
+  }
+  .about-chips {
+    display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 2rem;
+  }
+  .chip {
+    background: rgba(255,255,255,0.1);
+    color: var(--sky-light);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.1em;
+    padding: 0.4rem 0.9rem; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .about-quote {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic; font-size: 1.4rem;
+    color: rgba(255,255,255,0.9); line-height: 1.5;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 1.5rem; margin-top: 1rem;
+  }
+
+  /* ── PROCESS ── */
+  #process {
+    padding: 7rem 3rem;
+    background: var(--off-white);
+  }
+  .section-header {
+    text-align: center; margin-bottom: 5rem;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--burgundy); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    color: var(--charcoal); line-height: 1.2;
+  }
+  .section-title em { font-style: italic; color: var(--burgundy); }
+
+  .process-road {
+    max-width: 900px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .process-step {
+    display: grid; grid-template-columns: 1fr 60px 1fr;
+    align-items: start; gap: 0;
+  }
+  .process-step:nth-child(even) .step-content { grid-column: 3; }
+  .process-step:nth-child(even) .step-spacer { grid-column: 2; }
+  .process-step:nth-child(even) .step-empty { grid-column: 1; }
+  .step-content {
+    background: var(--cream);
+    border-radius: 3px; padding: 1.8rem 2rem;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+  .step-content:hover { box-shadow: 0 8px 32px rgba(125,45,69,0.12); }
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--burgundy); margin-bottom: 0.5rem;
+  }
+  .step-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem; font-weight: 800;
+    color: var(--burgundy-dark); margin-bottom: 0.6rem;
+  }
+  .step-desc {
+    font-size: 0.9rem; line-height: 1.65; color: var(--muted);
+  }
+  .step-center {
+    display: flex; flex-direction: column; align-items: center;
+    position: relative; padding-top: 1.8rem;
+  }
+  .step-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--burgundy);
+    border: 3px solid var(--off-white);
+    box-shadow: 0 0 0 2px var(--burgundy);
+    flex-shrink: 0; z-index: 1;
+  }
+  .step-line {
+    width: 2px; flex: 1; min-height: 60px;
+    background: linear-gradient(to bottom, var(--burgundy), rgba(125,45,69,0.15));
+  }
+  .step-empty { background: transparent; }
+
+  /* ── PORTFOLIO ── */
+  #portfolio {
+    padding: 7rem 3rem;
+    background: var(--burgundy);
+  }
+  #portfolio .section-title { color: var(--sky-light); }
+  #portfolio .section-label { color: var(--sky); }
+
+  .portfolio-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+  }
+  .portfolio-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px; overflow: hidden;
+    transition: transform 0.2s, background 0.2s;
+    cursor: pointer;
+  }
+  .portfolio-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.1);
+  }
+  .card-thumb {
+    height: 200px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 4rem;
+    font-weight: 700; letter-spacing: -0.05em;
+    position: relative; overflow: hidden;
+  }
+  .card-thumb-crow { background: linear-gradient(135deg, #3d2a5f 0%, #6b4fa0 100%); color: rgba(255,255,255,0.15); }
+  .card-thumb-wired { background: linear-gradient(135deg, var(--burgundy-dark) 0%, #b04060 100%); color: rgba(255,255,255,0.1); }
+  .card-thumb-tbd { background: linear-gradient(135deg, #2a4a5f 0%, #4a7a9b 100%); color: rgba(255,255,255,0.1); }
+  .card-badge {
+    position: absolute; top: 1rem; left: 1rem;
+    background: rgba(255,255,255,0.15);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.9); padding: 0.3rem 0.7rem; border-radius: 20px;
+  }
+  .card-body { padding: 1.5rem; }
+  .card-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem;
+  }
+  .card-desc {
+    font-size: 0.87rem; line-height: 1.6;
+    color: rgba(255,255,255,0.55);
+  }
+  .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+  .card-tag {
+    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.08em; color: var(--sky);
+    border: 1px solid rgba(184,221,232,0.3);
+    padding: 0.2rem 0.6rem; border-radius: 2px;
+  }
+
+  /* ── SERVICES / PRICING ── */
+  #services {
+    padding: 7rem 3rem;
+    background: var(--sky-light);
+  }
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem; max-width: 1000px; margin: 0 auto;
+  }
+  .pricing-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 3px; padding: 2.5rem 2rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(125,45,69,0.14);
+  }
+  .pricing-card.featured {
+    background: var(--burgundy); border-color: var(--burgundy);
+  }
+  .featured-badge {
+    position: absolute; top: 1.2rem; right: -1.5rem;
+    background: var(--sky-light); color: var(--burgundy-dark);
+    font-family: 'Space Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.3rem 2rem; transform: rotate(30deg);
+  }
+  .plan-name {
+    font-family: 'Space Mono', monospace; font-size: 0.75rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--burgundy); margin-bottom: 0.8rem;
+  }
+  .featured .plan-name { color: var(--sky-light); }
+  .plan-price {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 2.8rem; color: var(--charcoal); line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .featured .plan-price { color: #fff; }
+  .plan-period {
+    font-size: 0.82rem; color: var(--muted); margin-bottom: 1.8rem;
+  }
+  .featured .plan-period { color: rgba(255,255,255,0.6); }
+  .plan-features { list-style: none; margin-bottom: 2rem; }
+  .plan-features li {
+    font-size: 0.9rem; color: var(--muted);
+    padding: 0.55rem 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.7rem;
+  }
+  .featured .plan-features li {
+    color: rgba(255,255,255,0.75); border-bottom-color: rgba(255,255,255,0.1);
+  }
+  .plan-features li::before {
+    content: '→'; color: var(--burgundy);
+    font-family: 'Space Mono', monospace; font-size: 0.85rem;
+  }
+  .featured .plan-features li::before { color: var(--sky-light); }
+  .plan-btn {
+    width: 100%;
+    background: var(--burgundy); color: #fff;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.9rem; border: 2px solid var(--burgundy);
+    border-radius: 2px; cursor: pointer; transition: all 0.2s;
+  }
+  .plan-btn:hover {
+    background: var(--burgundy-dark); border-color: var(--burgundy-dark);
+  }
+  .featured .plan-btn {
+    background: var(--sky-light); color: var(--burgundy-dark);
+    border-color: var(--sky-light);
+  }
+  .featured .plan-btn:hover {
+    background: #fff; border-color: #fff;
+  }
+
+  /* ── PAYMENT MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(30,10,15,0.7); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 4px;
+    width: 100%; max-width: 540px;
+    max-height: 90vh; overflow-y: auto;
+    padding: 3rem;
+    animation: modalIn 0.3s cubic-bezier(0.2,0,0,1);
+  }
+  @keyframes modalIn {
+    from { opacity:0; transform:translateY(20px) scale(0.98); }
+    to { opacity:1; transform:none; }
+  }
+  .modal-close {
+    position: absolute; top: 1.2rem; right: 1.2rem;
+    background: none; border: none; cursor: pointer;
+    font-size: 1.4rem; color: var(--muted); line-height: 1;
+  }
+  .modal-header { margin-bottom: 2rem; }
+  .modal-label {
+    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--burgundy); margin-bottom: 0.5rem;
+  }
+  .modal-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.9rem; color: var(--burgundy-dark);
+  }
+  .modal-plan-info {
+    background: var(--cream); border-radius: 3px;
+    padding: 1.2rem 1.4rem; margin-bottom: 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-plan-name { font-weight: 700; color: var(--charcoal); }
+  .modal-plan-price {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700; color: var(--burgundy); font-size: 1.2rem;
+  }
+
+  .form-group { margin-bottom: 1.3rem; }
+  .form-label {
+    display: block; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em;
+    color: var(--charcoal); margin-bottom: 0.5rem;
+  }
+  .form-input {
+    width: 100%; padding: 0.8rem 1rem;
+    border: 1.5px solid var(--border); border-radius: 2px;
+    font-family: 'Syne', sans-serif; font-size: 0.95rem;
+    color: var(--charcoal); background: var(--off-white);
+    transition: border-color 0.2s; outline: none;
+  }
+  .form-input:focus { border-color: var(--burgundy); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  #card-element {
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--border); border-radius: 2px;
+    background: var(--off-white); transition: border-color 0.2s;
+  }
+  #card-element.StripeElement--focus { border-color: var(--burgundy); }
+
+  .secure-note {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    color: var(--muted); margin-top: 1rem; margin-bottom: 1.5rem;
+  }
+  .secure-note svg { flex-shrink: 0; }
+
+  #pay-btn {
+    width: 100%;
+    background: var(--burgundy); color: #fff;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 1.1rem; border: none; border-radius: 2px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  #pay-btn:hover { background: var(--burgundy-dark); }
+  #pay-btn:disabled { opacity: 0.5; cursor: default; }
+  #card-errors {
+    color: #c0392b; font-size: 0.85rem; margin-top: 0.5rem;
+    min-height: 1.2em;
+  }
+  .payment-success {
+    text-align: center; padding: 2rem 0;
+  }
+  .payment-success h3 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem; color: var(--burgundy-dark); margin-bottom: 1rem;
+  }
+  .payment-success p { color: var(--muted); line-height: 1.7; }
+
+  /* ── CONTACT ── */
+  #contact {
+    padding: 7rem 3rem;
+    background: var(--cream);
+  }
+  .contact-inner {
+    max-width: 760px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
+    align-items: start;
+  }
+  .contact-info-label {
+    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--burgundy); margin-bottom: 1.5rem;
+  }
+  .contact-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.5rem; color: var(--burgundy-dark);
+    line-height: 1.15; margin-bottom: 1.5rem;
+  }
+  .contact-title em { font-style: italic; }
+  .contact-detail {
+    display: flex; flex-direction: column; gap: 1.2rem;
+  }
+  .contact-item {
+    display: flex; align-items: flex-start; gap: 0.8rem;
+  }
+  .contact-icon {
+    width: 36px; height: 36px; border-radius: 2px;
+    background: var(--burgundy); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 0.9rem;
+  }
+  .contact-item-text { font-size: 0.9rem; color: var(--muted); }
+  .contact-item-text strong {
+    display: block; font-family: 'Syne', sans-serif;
+    font-weight: 700; color: var(--charcoal); font-size: 0.82rem;
+    letter-spacing: 0.05em; margin-bottom: 0.15rem;
+  }
+  .contact-item-text a { color: var(--burgundy); text-decoration: none; }
+  .contact-item-text a:hover { text-decoration: underline; }
+
+  .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+  .contact-form .form-input { background: #fff; }
+  textarea.form-input { resize: vertical; min-height: 120px; line-height: 1.6; }
+  .form-submit {
+    background: var(--burgundy); color: #fff;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 1rem; border: none; border-radius: 2px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .form-submit:hover { background: var(--burgundy-dark); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--charcoal);
+    padding: 3rem; color: rgba(255,255,255,0.4);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Space Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.05em; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo {
+    font-size: 1rem; font-weight: 700; color: var(--sky-light);
+  }
+
+  /* ── ANIMATIONS ── */
+  [data-reveal] {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  [data-reveal].visible { opacity: 1; transform: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    #about { grid-template-columns: 1fr; padding: 5rem 1.5rem; gap: 3rem; }
+    #process, #portfolio, #services, #contact { padding: 5rem 1.5rem; }
+    .process-step { grid-template-columns: 1fr; }
+    .step-center { display: none; }
+    .process-step:nth-child(even) .step-content { grid-column: 1; }
+    .step-content { margin-bottom: 1rem; }
+    .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .modal { padding: 2rem; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">WIIRED</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#services" class="nav-cta">Book a Consult</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg-text">W</div>
+  <div class="hero-tag">Seattle-Based Studio</div>
+  <h1 class="hero-title">WIIRED<br/>Studio</h1>
+  <p class="hero-sub">design & deploy</p>
+  <p class="hero-desc">
+    We build solutions at the intersection of engineering, design, and storytelling — creating seamless digital experiences for startups & small businesses.
+  </p>
+  <div class="hero-actions">
+    <a href="#services" class="btn-primary">Start a Project</a>
+    <a href="#portfolio" class="btn-outline">View Work</a>
+  </div>
+  <div class="hero-scroll">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div data-reveal>
+    <div class="about-label">Who We Are</div>
+    <h2 class="about-title">Design that <em>works</em> as hard as you do.</h2>
+    <p class="about-body">
+      WIIRED Studio is a Seattle-based UI/UX design studio founded by two computer science students who believe great design is never just surface-level — it's structure, story, and strategy working together.
+    </p>
+    <p class="about-body">
+      We partner with startups and small businesses to transform complex ideas into clear, beautiful, and functional digital experiences.
+    </p>
+    <div class="about-stats">
+      <div class="stat">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Step design process</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2</div>
+        <div class="stat-label">CS student founders</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Ideas per sprint</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">SEA</div>
+        <div class="stat-label">Based in Seattle, WA</div>
+      </div>
+    </div>
+  </div>
+  <div data-reveal style="transition-delay:0.15s">
+    <div class="about-visual">
+      <div class="about-visual-bg">W</div>
+      <div class="about-chips">
+        <span class="chip">UI/UX Design</span>
+        <span class="chip">Wireframing</span>
+        <span class="chip">Prototyping</span>
+        <span class="chip">Web Development</span>
+        <span class="chip">Brand Systems</span>
+        <span class="chip">User Research</span>
+        <span class="chip">Information Architecture</span>
+      </div>
+      <div class="about-quote">
+        "The problem is never just the visuals — it's structure, discoverability, and experience."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-header" data-reveal>
+    <div class="section-label">How We Work</div>
+    <h2 class="section-title">Our <em>process</em></h2>
+  </div>
+  <div class="process-road">
+
+    <div class="process-step" data-reveal>
+      <div class="step-content">
+        <div class="step-num">01 / Discovery</div>
+        <div class="step-name">Road to Discovery</div>
+        <div class="step-desc">We audit the current experience, identify pain points, map user & system flows, analyze behavior patterns, and define the <em>real</em> problem — not just the symptoms.</div>
+      </div>
+      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
+      <div class="step-empty"></div>
+    </div>
+
+    <div class="process-step" data-reveal style="transition-delay:0.1s">
+      <div class="step-empty"></div>
+      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-num">02 / Wireframing</div>
+        <div class="step-name">Wireframing</div>
+        <div class="step-desc">Low and mid-fidelity wireframes map out structure and hierarchy before we touch aesthetics. No pretty pixels without solid bones.</div>
+      </div>
+    </div>
+
+    <div class="process-step" data-reveal style="transition-delay:0.2s">
+      <div class="step-content">
+        <div class="step-num">03 / Redesign</div>
+        <div class="step-name">Redesign</div>
+        <div class="step-desc">High-fidelity designs with updated color palettes, typography, assets, and interactive UI — eliminating static elements and compacting text-heavy layouts.</div>
+      </div>
+      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
+      <div class="step-empty"></div>
+    </div>
+
+    <div class="process-step" data-reveal style="transition-delay:0.3s">
+      <div class="step-empty"></div>
+      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-num">04 / Implementation</div>
+        <div class="step-name">Implementation</div>
+        <div class="step-desc">Engineering meets design as we build the experience in code — responsive, performant, and accessible.</div>
+      </div>
+    </div>
+
+    <div class="process-step" data-reveal style="transition-delay:0.4s">
+      <div class="step-content">
+        <div class="step-num">05 / Deployment</div>
+        <div class="step-name">Deployment</div>
+        <div class="step-desc">We launch, configure, and make sure everything is live, stable, and ready for real users in the real world.</div>
+      </div>
+      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
+      <div class="step-empty"></div>
+    </div>
+
+    <div class="process-step" data-reveal style="transition-delay:0.5s">
+      <div class="step-empty"></div>
+      <div class="step-center"><div class="step-dot"></div></div>
+      <div class="step-content">
+        <div class="step-num">06 / Retrospective</div>
+        <div class="step-name">Retrospective</div>
+        <div class="step-desc">We review what worked, what didn't, and how to iterate. Great design is a continuous loop, not a one-time event.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-header" data-reveal>
+    <div class="section-label">Our Work</div>
+    <h2 class="section-title" style="color:var(--sky-light)">Selected <em style="color:var(--sky)">projects</em></h2>
+  </div>
+  <div class="portfolio-grid">
+    <div class="portfolio-card" data-reveal>
+      <div class="card-thumb card-thumb-crow">
+        CROW
+        <span class="card-badge">UW Bothell</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">The CROW Redesign</div>
+        <div class="card-desc">Redesigned a centralized student publishing platform at UW Bothell — improved navigation, reduced text density, and created an interactive UI for better content discoverability.</div>
+        <div class="card-tags">
+          <span class="card-tag">UX Audit</span>
+          <span class="card-tag">Information Architecture</span>
+          <span class="card-tag">UI Redesign</span>
+        </div>
+      </div>
+    </div>
+    <div class="portfolio-card" data-reveal style="transition-delay:0.1s">
+      <div class="card-thumb card-thumb-wired">
+        WD
+        <span class="card-badge">Internal</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">WIIRED Studio Website</div>
+        <div class="card-desc">Our own studio site — designed and deployed through our full 6-step process. Dogfooding at its finest.</div>
+        <div class="card-tags">
+          <span class="card-tag">Brand Identity</span>
+          <span class="card-tag">Web Development</span>
+          <span class="card-tag">Design System</span>
+        </div>
+      </div>
+    </div>
+    <div class="portfolio-card" data-reveal style="transition-delay:0.2s">
+      <div class="card-thumb card-thumb-tbd">
+        ?
+        <span class="card-badge">Coming Soon</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Your Project Here</div>
+        <div class="card-desc">We're actively looking for our next collaboration. Startups, small businesses, research labs — if you have a problem worth solving, let's talk.</div>
+        <div class="card-tags">
+          <span class="card-tag">Open to Work</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES / PRICING -->
+<section id="services">
+  <div class="section-header" data-reveal>
+    <div class="section-label">Services & Pricing</div>
+    <h2 class="section-title">Simple, <em>transparent</em> pricing</h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card" data-reveal>
+      <div class="plan-name">Discovery Sprint</div>
+      <div class="plan-price">$299</div>
+      <div class="plan-period">one-time</div>
+      <ul class="plan-features">
+        <li>UX audit of existing product</li>
+        <li>Pain point identification</li>
+        <li>User flow mapping</li>
+        <li>Problem definition report</li>
+        <li>2-week turnaround</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('Discovery Sprint', '$299', 299)">Get Started</button>
+    </div>
+    <div class="pricing-card featured" data-reveal style="transition-delay:0.1s">
+      <div class="featured-badge">Popular</div>
+      <div class="plan-name">Full Redesign</div>
+      <div class="plan-price">$899</div>
+      <div class="plan-period">per project</div>
+      <ul class="plan-features">
+        <li>Everything in Discovery</li>
+        <li>Wireframes (lo & mid-fi)</li>
+        <li>High-fidelity designs</li>
+        <li>Interactive prototype</li>
+        <li>Design system & assets</li>
+        <li>1 round of revisions</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('Full Redesign', '$899', 899)">Get Started</button>
+    </div>
+    <div class="pricing-card" data-reveal style="transition-delay:0.2s">
+      <div class="plan-name">Design & Deploy</div>
+      <div class="plan-price">$1,799</div>
+      <div class="plan-period">per project</div>
+      <ul class="plan-features">
+        <li>Everything in Full Redesign</li>
+        <li>Full web implementation</li>
+        <li>Responsive development</li>
+        <li>Deployment & launch</li>
+        <li>Retrospective session</li>
+        <li>30-day post-launch support</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('Design & Deploy', '$1,799', 1799)">Get Started</button>
+    </div>
+  </div>
+  <p style="text-align:center; margin-top:2.5rem; color:var(--muted); font-size:0.88rem;">
+    Need something custom? <a href="#contact" style="color:var(--burgundy); font-weight:700;">Let's talk →</a>
+  </p>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div data-reveal>
+      <div class="contact-info-label">Get in Touch</div>
+      <h2 class="contact-title">Let's build something <em>together.</em></h2>
+      <div class="contact-detail">
+        <div class="contact-item">
+          <div class="contact-icon">✉</div>
+          <div class="contact-item-text">
+            <strong>Email</strong>
+            <a href="mailto:wiiredstudio@gmail.com">wiiredstudio@gmail.com</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div class="contact-item-text">
+            <strong>Location</strong>
+            Seattle, Washington
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">⚡</div>
+          <div class="contact-item-text">
+            <strong>Response Time</strong>
+            Within 48 hours
+          </div>
+        </div>
+      </div>
+    </div>
+    <form class="contact-form" data-reveal style="transition-delay:0.15s" onsubmit="handleContactForm(event)">
+      <input type="text" class="form-input" placeholder="Your name" required />
+      <input type="email" class="form-input" placeholder="Email address" required />
+      <input type="text" class="form-input" placeholder="What's your project about?" />
+      <textarea class="form-input" placeholder="Tell us more — what problem are you solving?"></textarea>
+      <button type="submit" class="form-submit">Send Message →</button>
+      <p id="form-success" style="display:none; color:var(--burgundy); font-size:0.9rem; font-weight:700;">
+        ✓ Message received — we'll be in touch within 48 hours!
+      </p>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">WIIRED Studio</div>
+  <div>© 2026 WIIRED Studio · Seattle, WA</div>
+  <div>design & deploy</div>
+</footer>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content">
+      <div class="modal-header">
+        <div class="modal-label">Secure Checkout</div>
+        <h3 class="modal-title" id="modal-title-text">Start Your Project</h3>
+      </div>
+      <div class="modal-plan-info">
+        <span class="modal-plan-name" id="modal-plan-name">—</span>
+        <span class="modal-plan-price" id="modal-plan-price">—</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" id="pay-name" placeholder="Jane Smith" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" id="pay-email" placeholder="jane@yourcompany.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Card Details</label>
+        <div id="card-element"></div>
+        <div id="card-errors"></div>
+      </div>
+      <div class="secure-note">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        Payments secured by Stripe. Your card data never touches our servers.
+      </div>
+      <button id="pay-btn" onclick="handlePayment()">Pay Now</button>
+    </div>
+    <div class="payment-success" id="payment-success" style="display:none">
+      <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+      <h3>You're all set!</h3>
+      <p>Thank you for choosing WIIRED Studio. We'll reach out to <strong id="success-email"></strong> within 48 hours to kick things off.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('[data-reveal]');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+}, { threshold: 0.12 });
+reveals.forEach(el => observer.observe(el));
+
+// ── STRIPE SETUP ──
+// NOTE: Replace with your actual Stripe publishable key from https://dashboard.stripe.com/apikeys
+const STRIPE_PK = 'pk_test_51000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+
+let stripe, cardElement, currentAmount = 0;
+
+function initStripe() {
+  try {
+    stripe = Stripe(STRIPE_PK);
+    const elements = stripe.elements({
+      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Syne:wght@400;700&display=swap' }]
+    });
+    cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontFamily: "'Syne', sans-serif",
+          fontSize: '15px',
+          color: '#1a1a1a',
+          '::placeholder': { color: '#aaa' }
+        }
+      }
+    });
+    cardElement.mount('#card-element');
+    cardElement.on('change', e => {
+      document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+    });
+  } catch(err) {
+    // Stripe key not configured yet — show friendly message
+    document.getElementById('card-element').innerHTML =
+      '<p style="color:var(--muted);font-size:0.85rem;padding:0.5rem 0">⚠️ Payment processing requires a Stripe API key.<br/>Add your key to go live. Contact: <a href="mailto:wiiredstudio@gmail.com" style="color:var(--burgundy)">wiiredstudio@gmail.com</a></p>';
+  }
+}
+
+// ── MODAL ──
+function openModal(planName, planPrice, amount) {
+  currentAmount = amount;
+  document.getElementById('modal-plan-name').textContent = planName;
+  document.getElementById('modal-plan-price').textContent = planPrice;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modal-content').style.display = 'block';
+  document.getElementById('payment-success').style.display = 'none';
+  if(!stripe) initStripe();
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function closeModalOnOverlay(e) {
+  if(e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+async function handlePayment() {
+  const name = document.getElementById('pay-name').value.trim();
+  const email = document.getElementById('pay-email').value.trim();
+  if(!name || !email) {
+    document.getElementById('card-errors').textContent = 'Please enter your name and email.';
+    return;
+  }
+  if(!stripe || !cardElement) {
+    document.getElementById('card-errors').textContent = 'Payment system not initialized. Please configure your Stripe key.';
+    return;
+  }
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true; btn.textContent = 'Processing…';
+  try {
+    // In production: create a PaymentIntent on your backend, get client_secret, then confirmCardPayment
+    // Example backend call:
+    // const { clientSecret } = await fetch('/api/create-payment-intent', {
+    //   method: 'POST',
+    //   body: JSON.stringify({ amount: currentAmount * 100, currency: 'usd' })
+    // }).then(r => r.json());
+    // const result = await stripe.confirmCardPayment(clientSecret, {
+    //   payment_method: { card: cardElement, billing_details: { name, email } }
+    // });
+
+    // Demo: simulate success after 1.5s
+    await new Promise(r => setTimeout(r, 1500));
+    document.getElementById('success-email').textContent = email;
+    document.getElementById('modal-content').style.display = 'none';
+    document.getElementById('payment-success').style.display = 'block';
+  } catch(err) {
+    document.getElementById('card-errors').textContent = err.message || 'Payment failed. Please try again.';
+    btn.disabled = false; btn.textContent = 'Pay Now';
+  }
+}
+
+// ── CONTACT FORM ──
+function handleContactForm(e) {
+  e.preventDefault();
+  const success = document.getElementById('form-success');
+  e.target.querySelectorAll('input,textarea').forEach(el => el.value = '');
+  success.style.display = 'block';
+  setTimeout(() => success.style.display = 'none', 5000);
+}
+</script>
+</body>
+</html>
