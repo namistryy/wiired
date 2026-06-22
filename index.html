@@ -6,7 +6,7 @@
 <title>WIIRED Studio — Design & Deploy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&family=Gluten:wght@700;800&display=swap" rel="stylesheet" />
 <script src="https://js.stripe.com/v3/"></script>
 
 <style>
@@ -43,10 +43,10 @@
     backdrop-filter: blur(12px);
   }
   .nav-logo {
-    font-family: 'Space Mono', monospace;
-    font-weight: 700; font-size: 1.3rem;
-    color: var(--sky-light); letter-spacing: 0.05em;
-    text-decoration: none;
+    font-family: 'Gluten', sans-serif;
+    font-weight: 800; font-size: 1.6rem;
+    color: var(--sky-light); letter-spacing: 0.01em;
+    text-decoration: none; text-transform: uppercase;
   }
   .nav-links { display: flex; gap: 2.2rem; list-style: none; }
   .nav-links a {
@@ -75,15 +75,6 @@
     padding: 8rem 3rem 4rem;
     position: relative; overflow: hidden;
   }
-  .hero-bg-text {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(8rem, 20vw, 18rem);
-    font-weight: 700; color: rgba(255,255,255,0.04);
-    white-space: nowrap; pointer-events: none;
-    user-select: none; letter-spacing: -0.04em;
-  }
   .hero-tag {
     font-family: 'Space Mono', monospace;
     font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
@@ -95,11 +86,11 @@
     width: 2rem; height: 1px; background: var(--sky);
   }
   .hero-title {
-    font-family: 'Space Mono', monospace;
+    font-family: 'Gluten', sans-serif;
     font-size: clamp(3.5rem, 10vw, 8rem);
-    font-weight: 700; color: var(--sky-light);
-    line-height: 0.9; letter-spacing: -0.02em;
-    margin-bottom: 0.5rem;
+    font-weight: 800; color: var(--sky-light);
+    line-height: 0.95; letter-spacing: 0.01em;
+    margin-bottom: 0.5rem; text-transform: uppercase;
   }
   .hero-sub {
     font-family: 'Instrument Serif', serif;
@@ -172,35 +163,11 @@
     font-size: 1.05rem; line-height: 1.85;
     color: var(--muted); margin-bottom: 2rem;
   }
-  .about-stats {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 1.5rem; margin-top: 2.5rem;
-  }
-  .stat {
-    border-left: 2px solid var(--burgundy);
-    padding-left: 1.2rem;
-  }
-  .stat-num {
-    font-family: 'Space Mono', monospace;
-    font-size: 2.2rem; font-weight: 700;
-    color: var(--burgundy); line-height: 1;
-  }
-  .stat-label {
-    font-size: 0.8rem; color: var(--muted);
-    margin-top: 0.3rem; line-height: 1.4;
-  }
   .about-visual {
     background: var(--burgundy);
     border-radius: 4px;
     padding: 3rem 2.5rem;
     position: relative; overflow: hidden;
-  }
-  .about-visual-bg {
-    position: absolute; top: -2rem; right: -2rem;
-    font-family: 'Space Mono', monospace;
-    font-size: 8rem; font-weight: 700;
-    color: rgba(255,255,255,0.05);
-    line-height: 1; pointer-events: none;
   }
   .about-chips {
     display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 2rem;
@@ -212,13 +179,6 @@
     font-size: 0.72rem; letter-spacing: 0.1em;
     padding: 0.4rem 0.9rem; border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.15);
-  }
-  .about-quote {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic; font-size: 1.4rem;
-    color: rgba(255,255,255,0.9); line-height: 1.5;
-    border-top: 1px solid rgba(255,255,255,0.15);
-    padding-top: 1.5rem; margin-top: 1rem;
   }
 
   /* ── PROCESS ── */
@@ -241,54 +201,94 @@
   }
   .section-title em { font-style: italic; color: var(--burgundy); }
 
-  .process-road {
-    max-width: 900px; margin: 0 auto;
-    display: flex; flex-direction: column; gap: 0;
+  /* ── PROCESS TIMELINE ── */
+  #process {
+    padding: 0 !important;
+    background: #0e0608 !important;
   }
-  .process-step {
-    display: grid; grid-template-columns: 1fr 60px 1fr;
-    align-items: start; gap: 0;
+  .proc-header {
+    padding: 5rem 3rem 3rem;
+    display: flex; justify-content: space-between; align-items: flex-end;
   }
-  .process-step:nth-child(even) .step-content { grid-column: 3; }
-  .process-step:nth-child(even) .step-spacer { grid-column: 2; }
-  .process-step:nth-child(even) .step-empty { grid-column: 1; }
-  .step-content {
-    background: var(--cream);
-    border-radius: 3px; padding: 1.8rem 2rem;
-    border: 1px solid var(--border);
-    position: relative;
-    transition: box-shadow 0.2s;
+  .proc-header-left .section-label { color: rgba(245,237,227,0.35); margin-bottom: 0.8rem; }
+  .proc-header-left .section-title { color: #f5ede3; }
+  .proc-header-left .section-title em { color: var(--sky); }
+  .proc-sub-right {
+    font-size: 0.85rem; color: rgba(245,237,227,0.35);
+    max-width: 200px; line-height: 1.65; text-align: right;
   }
-  .step-content:hover { box-shadow: 0 8px 32px rgba(125,45,69,0.12); }
-  .step-num {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--burgundy); margin-bottom: 0.5rem;
+  .proc-timeline-wrap { position: relative; }
+  .proc-timeline-line {
+    position: absolute; top: 36px; left: 0; right: 0;
+    height: 1px; background: rgba(245,237,227,0.08); z-index: 0;
   }
-  .step-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.2rem; font-weight: 800;
-    color: var(--burgundy-dark); margin-bottom: 0.6rem;
+  .proc-columns {
+    display: grid; grid-template-columns: repeat(6, 1fr);
   }
-  .step-desc {
-    font-size: 0.9rem; line-height: 1.65; color: var(--muted);
+  .proc-col {
+    position: relative; cursor: pointer;
+    transition: background 0.25s;
+    border-left: 1px solid rgba(245,237,227,0.06);
   }
-  .step-center {
-    display: flex; flex-direction: column; align-items: center;
-    position: relative; padding-top: 1.8rem;
+  .proc-col:first-child { border-left: none; }
+  .proc-col-inner {
+    padding: 0 1.5rem 2.5rem;
+    height: 100%; display: flex; flex-direction: column;
   }
-  .step-dot {
+  .proc-col.active { background: var(--burgundy); }
+  .proc-col-accent {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--sky); opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .proc-col.active .proc-col-accent { opacity: 1; }
+  .proc-dot-wrap {
+    height: 72px; display: flex; align-items: center;
+    position: relative; z-index: 1;
+  }
+  .proc-dot {
     width: 14px; height: 14px; border-radius: 50%;
-    background: var(--burgundy);
-    border: 3px solid var(--off-white);
-    box-shadow: 0 0 0 2px var(--burgundy);
-    flex-shrink: 0; z-index: 1;
+    background: rgba(245,237,227,0.12);
+    border: 2px solid rgba(245,237,227,0.18);
+    transition: all 0.25s;
   }
-  .step-line {
-    width: 2px; flex: 1; min-height: 60px;
-    background: linear-gradient(to bottom, var(--burgundy), rgba(125,45,69,0.15));
+  .proc-col.active .proc-dot {
+    background: #f5ede3; border-color: #f5ede3;
+    width: 18px; height: 18px;
   }
-  .step-empty { background: transparent; }
+  .proc-step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem; font-weight: 700;
+    color: rgba(245,237,227,0.08);
+    line-height: 1; margin-bottom: 0.6rem;
+    transition: color 0.25s;
+  }
+  .proc-col.active .proc-step-num { color: rgba(245,237,227,0.18); }
+  .proc-step-name {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 0.95rem; color: rgba(245,237,227,0.4);
+    margin-bottom: 0.6rem; transition: color 0.25s;
+  }
+  .proc-col.active .proc-step-name { color: #f5ede3; }
+  .proc-step-desc {
+    font-size: 0.78rem; color: rgba(245,237,227,0.25);
+    line-height: 1.65; transition: color 0.25s;
+  }
+  .proc-col.active .proc-step-desc { color: rgba(245,237,227,0.65); }
+  .proc-footer-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 3rem;
+    border-top: 1px solid rgba(245,237,227,0.06);
+  }
+  .proc-footer-logo {
+    font-family: 'Gluten', sans-serif; font-size: 0.95rem;
+    font-weight: 800; letter-spacing: 0.02em;
+    color: rgba(245,237,227,0.25); text-transform: uppercase;
+  }
+  .proc-footer-tag {
+    font-size: 0.72rem; color: rgba(245,237,227,0.18);
+    letter-spacing: 0.06em;
+  }
 
   /* ── PORTFOLIO ── */
   #portfolio {
@@ -587,7 +587,9 @@
     letter-spacing: 0.05em; flex-wrap: wrap; gap: 1rem;
   }
   .footer-logo {
-    font-size: 1rem; font-weight: 700; color: var(--sky-light);
+    font-family: 'Gluten', sans-serif;
+    font-size: 1.15rem; font-weight: 800; color: var(--sky-light);
+    text-transform: uppercase;
   }
 
   /* ── ANIMATIONS ── */
@@ -603,11 +605,11 @@
     .nav-links { display: none; }
     .hero { padding: 7rem 1.5rem 3rem; }
     #about { grid-template-columns: 1fr; padding: 5rem 1.5rem; gap: 3rem; }
-    #process, #portfolio, #services, #contact { padding: 5rem 1.5rem; }
-    .process-step { grid-template-columns: 1fr; }
-    .step-center { display: none; }
-    .process-step:nth-child(even) .step-content { grid-column: 1; }
-    .step-content { margin-bottom: 1rem; }
+    #portfolio, #services, #contact { padding: 5rem 1.5rem; }
+    .proc-header { flex-direction: column; gap: 1rem; padding: 3rem 1.5rem 2rem; }
+    .proc-sub-right { text-align: left; max-width: 100%; }
+    .proc-columns { grid-template-columns: repeat(3, 1fr); }
+    .proc-footer-bar { padding: 1rem 1.5rem; }
     .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
     .modal { padding: 2rem; }
     .form-row { grid-template-columns: 1fr; }
@@ -622,18 +624,20 @@
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
-    <li><a href="#process">Process</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <a href="#services" class="nav-cta">Book a Consult</a>
+  <div style="display:flex;gap:0.8rem;align-items:center;">
+    <a href="#services" class="nav-cta" style="background:rgba(255,255,255,0.12);border-color:#fff;">Book a Consult</a>
+    <a href="#portfolio" class="nav-cta">Projects</a>
+    <a href="#process" class="nav-cta">Process</a>
+  </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero" id="home">
-  <div class="hero-bg-text">W</div>
   <div class="hero-tag">Seattle-Based Studio</div>
-  <h1 class="hero-title">WIIRED<br/>Studio</h1>
+  <h1 class="hero-title">WIIRED<br/>STUDIO</h1>
   <p class="hero-sub">design & deploy</p>
   <p class="hero-desc">
     We build solutions at the intersection of engineering, design, and storytelling — creating seamless digital experiences for startups & small businesses.
@@ -659,28 +663,10 @@
     <p class="about-body">
       We partner with startups and small businesses to transform complex ideas into clear, beautiful, and functional digital experiences.
     </p>
-    <div class="about-stats">
-      <div class="stat">
-        <div class="stat-num">6</div>
-        <div class="stat-label">Step design process</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">2</div>
-        <div class="stat-label">CS student founders</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">∞</div>
-        <div class="stat-label">Ideas per sprint</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">SEA</div>
-        <div class="stat-label">Based in Seattle, WA</div>
-      </div>
-    </div>
   </div>
   <div data-reveal style="transition-delay:0.15s">
     <div class="about-visual">
-      <div class="about-visual-bg">W</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(245,237,227,0.45);margin-bottom:1rem;">Services</div>
       <div class="about-chips">
         <span class="chip">UI/UX Design</span>
         <span class="chip">Wireframing</span>
@@ -690,81 +676,88 @@
         <span class="chip">User Research</span>
         <span class="chip">Information Architecture</span>
       </div>
-      <div class="about-quote">
-        "The problem is never just the visuals — it's structure, discoverability, and experience."
-      </div>
     </div>
   </div>
 </section>
 
 <!-- PROCESS -->
 <section id="process">
-  <div class="section-header" data-reveal>
-    <div class="section-label">How We Work</div>
-    <h2 class="section-title">Our <em>process</em></h2>
+  <div class="proc-header">
+    <div class="proc-header-left">
+      <div class="section-label">How We Work</div>
+      <h2 class="section-title">Our <em>process</em></h2>
+    </div>
+    <div class="proc-sub-right">Six steps from first brief to final retrospective.</div>
   </div>
-  <div class="process-road">
+  <div class="proc-timeline-wrap">
+    <div class="proc-timeline-line"></div>
+    <div class="proc-columns" id="procCols">
 
-    <div class="process-step" data-reveal>
-      <div class="step-content">
-        <div class="step-num">01 / Discovery</div>
-        <div class="step-name">Road to Discovery</div>
-        <div class="step-desc">We audit the current experience, identify pain points, map user & system flows, analyze behavior patterns, and define the <em>real</em> problem — not just the symptoms.</div>
+      <div class="proc-col active" onclick="activateStep(0)">
+        <div class="proc-col-accent"></div>
+        <div class="proc-col-inner">
+          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+          <div class="proc-step-num">01</div>
+          <div class="proc-step-name">Discovery</div>
+          <div class="proc-step-desc">Audit the experience, map user flows, identify pain points, and define the real problem.</div>
+        </div>
       </div>
-      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
-      <div class="step-empty"></div>
-    </div>
 
-    <div class="process-step" data-reveal style="transition-delay:0.1s">
-      <div class="step-empty"></div>
-      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
-      <div class="step-content">
-        <div class="step-num">02 / Wireframing</div>
-        <div class="step-name">Wireframing</div>
-        <div class="step-desc">Low and mid-fidelity wireframes map out structure and hierarchy before we touch aesthetics. No pretty pixels without solid bones.</div>
+      <div class="proc-col" onclick="activateStep(1)">
+        <div class="proc-col-accent"></div>
+        <div class="proc-col-inner">
+          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+          <div class="proc-step-num">02</div>
+          <div class="proc-step-name">Wireframing</div>
+          <div class="proc-step-desc">Low and mid-fidelity frames to map structure and hierarchy before touching aesthetics.</div>
+        </div>
       </div>
-    </div>
 
-    <div class="process-step" data-reveal style="transition-delay:0.2s">
-      <div class="step-content">
-        <div class="step-num">03 / Redesign</div>
-        <div class="step-name">Redesign</div>
-        <div class="step-desc">High-fidelity designs with updated color palettes, typography, assets, and interactive UI — eliminating static elements and compacting text-heavy layouts.</div>
+      <div class="proc-col" onclick="activateStep(2)">
+        <div class="proc-col-accent"></div>
+        <div class="proc-col-inner">
+          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+          <div class="proc-step-num">03</div>
+          <div class="proc-step-name">Redesign</div>
+          <div class="proc-step-desc">High-fidelity designs — updated palette, type, assets, and interactive UI elements.</div>
+        </div>
       </div>
-      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
-      <div class="step-empty"></div>
-    </div>
 
-    <div class="process-step" data-reveal style="transition-delay:0.3s">
-      <div class="step-empty"></div>
-      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
-      <div class="step-content">
-        <div class="step-num">04 / Implementation</div>
-        <div class="step-name">Implementation</div>
-        <div class="step-desc">Engineering meets design as we build the experience in code — responsive, performant, and accessible.</div>
+      <div class="proc-col" onclick="activateStep(3)">
+        <div class="proc-col-accent"></div>
+        <div class="proc-col-inner">
+          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+          <div class="proc-step-num">04</div>
+          <div class="proc-step-name">Implementation</div>
+          <div class="proc-step-desc">Approved designs become real, working products — responsive, functional, and deployed.</div>
+        </div>
       </div>
-    </div>
 
-    <div class="process-step" data-reveal style="transition-delay:0.4s">
-      <div class="step-content">
-        <div class="step-num">05 / Deployment</div>
-        <div class="step-name">Deployment</div>
-        <div class="step-desc">We launch, configure, and make sure everything is live, stable, and ready for real users in the real world.</div>
+      <div class="proc-col" onclick="activateStep(4)">
+        <div class="proc-col-accent"></div>
+        <div class="proc-col-inner">
+          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+          <div class="proc-step-num">05</div>
+          <div class="proc-step-name">Deployment</div>
+          <div class="proc-step-desc">Launch, configure, and make everything live, stable, and ready for real users.</div>
+        </div>
       </div>
-      <div class="step-center"><div class="step-dot"></div><div class="step-line"></div></div>
-      <div class="step-empty"></div>
-    </div>
 
-    <div class="process-step" data-reveal style="transition-delay:0.5s">
-      <div class="step-empty"></div>
-      <div class="step-center"><div class="step-dot"></div></div>
-      <div class="step-content">
-        <div class="step-num">06 / Retrospective</div>
-        <div class="step-name">Retrospective</div>
-        <div class="step-desc">We review what worked, what didn't, and how to iterate. Great design is a continuous loop, not a one-time event.</div>
+      <div class="proc-col" onclick="activateStep(5)">
+        <div class="proc-col-accent"></div>
+        <div class="proc-col-inner">
+          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+          <div class="proc-step-num">06</div>
+          <div class="proc-step-name">Retrospective</div>
+          <div class="proc-step-desc">Review what worked, what didn't, and how to iterate. Great design is a continuous loop.</div>
+        </div>
       </div>
-    </div>
 
+    </div>
+  </div>
+  <div class="proc-footer-bar">
+    <div class="proc-footer-logo">WIIRED Studio</div>
+    <div class="proc-footer-tag">design & deploy · Seattle, WA</div>
   </div>
 </section>
 
@@ -923,7 +916,6 @@
 <footer>
   <div class="footer-logo">WIIRED Studio</div>
   <div>© 2026 WIIRED Studio · Seattle, WA</div>
-  <div>design & deploy</div>
 </footer>
 
 <!-- PAYMENT MODAL -->
@@ -970,6 +962,13 @@
 </div>
 
 <script>
+// ── PROCESS TIMELINE ──
+function activateStep(i) {
+  document.querySelectorAll('.proc-col').forEach((c, idx) => {
+    c.classList.toggle('active', idx === i);
+  });
+}
+
 // ── SCROLL REVEAL ──
 const reveals = document.querySelectorAll('[data-reveal]');
 const observer = new IntersectionObserver(entries => {
