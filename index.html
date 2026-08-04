@@ -6,7 +6,7 @@
 <title>WIIRED Studio — Design & Deploy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&family=Gluten:wght@700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
 <script src="https://js.stripe.com/v3/"></script>
 
 <style>
@@ -29,42 +29,153 @@
 
   body {
     font-family: 'Syne', sans-serif;
-    background: var(--off-white);
+    background-color: #1b1c1f;
+    background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1.5px);
+    background-size: 26px 26px;
+    background-position: -4px -4px;
     color: var(--charcoal);
     overflow-x: hidden;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M2 1L2 16.5L6 13L8.5 18.5L11 17.3L8.5 12L14 12Z' fill='white' stroke='black' stroke-width='1.1' stroke-linejoin='round'/></svg>") 2 1, auto;
+  }
+  a, button, [onclick] { cursor: pointer; }
+  input, textarea, select { cursor: text; }
+
+  /* ── CANVAS FRAMES ── */
+  .canvas-frame {
+    position: relative;
+    margin: 3.5rem auto;
+    max-width: min(1180px, calc(100% - 10rem));
+    border-radius: 20px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  #home.canvas-frame { margin-top: 3.5rem; overflow: visible; }
+  footer.canvas-frame { margin-bottom: 4rem; }
+  .frame-tag {
+    position: absolute; top: -1.9rem; left: 0.4rem;
+    display: flex; align-items: center; gap: 0.4rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.38);
+    pointer-events: none; user-select: none;
+  }
+  .frame-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 1px;
+    background: rgba(184,221,232,0.55);
   }
 
-  /* ── NAV ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1.2rem 3rem;
-    background: var(--burgundy);
-    backdrop-filter: blur(12px);
+  /* ── DRAGGABLE CANVAS FLOATERS ── */
+  .floater { cursor: grab; touch-action: none; user-select: none; }
+  .floater.dragging { cursor: grabbing; }
+
+  .figma-toolbar {
+    position: fixed; bottom: 1.75rem; left: calc(50% - 118px);
+    display: flex; gap: 0.35rem; z-index: 250;
+    background: rgba(35,36,40,0.92);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 0.5rem 0.6rem;
+    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
   }
-  .nav-logo {
-    font-family: 'Gluten', sans-serif;
-    font-weight: 800; font-size: 1.6rem;
-    color: var(--sky-light); letter-spacing: 0.01em;
-    text-decoration: none; text-transform: uppercase;
+  .figma-toolbar.dragging { box-shadow: 0 26px 60px -10px rgba(0,0,0,0.7); }
+  .tool-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.55); font-size: 0.95rem;
   }
-  .nav-links { display: flex; gap: 2.2rem; list-style: none; }
-  .nav-links a {
+  .tool-btn.active { background: var(--burgundy); color: #fff; }
+
+  .layers-head {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); margin-bottom: 0.55rem;
+  }
+  .layer-row {
+    font-family: 'Space Mono', monospace;
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.72rem; color: rgba(255,255,255,0.65);
+    padding: 0.28rem 0;
+  }
+  .layer-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+
+  .cursor-tag {
+    position: fixed; top: 48vh; left: 6vw; z-index: 250;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .cursor-tag span {
+    background: var(--sky); color: var(--burgundy-dark);
+    font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700;
+    padding: 0.25rem 0.6rem; border-radius: 3px 10px 10px 10px;
+    box-shadow: 0 10px 25px -8px rgba(0,0,0,0.5);
+  }
+
+  .sticky-note {
+    position: fixed; top: 58vh; right: 8vw; z-index: 250;
+    width: 118px;
+    background: #f2d768; color: #4a3a00;
+    font-family: 'Space Mono', monospace; font-size: 0.72rem; line-height: 1.4;
+    padding: 0.9rem 1rem; border-radius: 2px;
+    transform: rotate(-4deg);
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+  }
+
+  .swatch-cluster {
+    position: fixed; top: 16vh; right: 4vw; z-index: 250;
+    display: flex; gap: 0.4rem;
+    background: rgba(35,36,40,0.92);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 0.6rem; border-radius: 10px;
+    transform: rotate(-2deg);
+    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+  }
+  .swatch { width: 22px; height: 22px; border-radius: 4px; display: block; }
+
+  @media (max-width: 768px) {
+    .canvas-frame { max-width: calc(100% - 1.5rem); margin: 1.75rem auto; border-radius: 12px; }
+    #home.canvas-frame { margin-top: 5.5rem; }
+    .frame-tag { font-size: 0.62rem; top: -1.5rem; }
+    .cursor-tag, .sticky-note, .swatch-cluster { display: none; }
+    .layers-nav { max-height: 60vh; overflow-y: auto; }
+  }
+
+  /* ── NAV (Layers panel) ── */
+  .layers-nav {
+    position: fixed; top: 1.25rem; left: 1.25rem; z-index: 300;
+    width: 196px;
+    background: rgba(30,31,34,0.92);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1rem 1.1rem 1.2rem;
+    box-shadow: 0 20px 50px -14px rgba(0,0,0,0.6);
+    backdrop-filter: blur(14px);
+    display: flex; flex-direction: column;
+  }
+  .layers-nav .nav-logo {
     font-family: 'Syne', sans-serif;
-    font-size: 0.82rem; font-weight: 700; letter-spacing: 0.12em;
-    text-transform: uppercase; color: rgba(255,255,255,0.75);
-    text-decoration: none; transition: color 0.2s;
+    font-weight: 800; font-size: 1.15rem;
+    color: var(--sky-light); letter-spacing: -0.01em;
+    text-decoration: none; text-transform: uppercase;
+    margin-bottom: 0.9rem;
   }
-  .nav-links a:hover { color: var(--sky-light); }
-  .nav-cta {
-    background: transparent; border: 1.5px solid rgba(255,255,255,0.5);
-    color: #fff; font-family: 'Syne', sans-serif;
-    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
-    text-transform: uppercase; padding: 0.55rem 1.3rem;
-    border-radius: 2px; cursor: pointer; transition: all 0.2s;
-    text-decoration: none;
+  .layers-nav .layers-head {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 0.7rem; margin-bottom: 0.3rem;
   }
-  .nav-cta:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+  .layers-nav .layer-row {
+    text-decoration: none; cursor: pointer;
+    border-radius: 6px; padding: 0.4rem 0.5rem; margin: 0 -0.5rem;
+    transition: background 0.15s, color 0.15s;
+  }
+  .layers-nav .layer-row:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .layers-nav-cta {
+    margin-top: 0.9rem;
+    background: var(--burgundy); color: #fff;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: center; text-decoration: none;
+    padding: 0.6rem; border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .layers-nav-cta:hover { background: var(--burgundy-dark); }
 
   /* ── HERO ── */
   .hero {
@@ -72,7 +183,7 @@
     background: var(--burgundy);
     display: flex; flex-direction: column;
     justify-content: flex-end;
-    padding: 8rem 3rem 4rem;
+    padding: 8rem 4.5rem 4rem;
     position: relative; overflow: hidden;
   }
   .hero-tag {
@@ -86,16 +197,17 @@
     width: 2rem; height: 1px; background: var(--sky);
   }
   .hero-title {
-    font-family: 'Gluten', sans-serif;
+    font-family: 'Syne', sans-serif;
     font-size: clamp(3.5rem, 10vw, 8rem);
     font-weight: 800; color: var(--sky-light);
-    line-height: 0.95; letter-spacing: 0.01em;
-    margin-bottom: 0.5rem; text-transform: uppercase;
+    line-height: 0.92; letter-spacing: -0.02em;
+    margin-bottom: 0.6rem; text-transform: uppercase;
   }
   .hero-sub {
     font-family: 'Instrument Serif', serif;
     font-style: italic; font-size: clamp(1.4rem, 3.5vw, 2.4rem);
     color: rgba(255,255,255,0.65); margin-bottom: 3rem;
+    letter-spacing: 0.01em;
   }
   .hero-desc {
     max-width: 480px;
@@ -138,7 +250,7 @@
 
   /* ── ABOUT ── */
   #about {
-    padding: 7rem 3rem;
+    padding: 7rem 4.5rem;
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 5rem; align-items: center;
     background: var(--cream);
@@ -165,9 +277,10 @@
   }
   .about-visual {
     background: var(--burgundy);
-    border-radius: 4px;
+    border-radius: 10px;
     padding: 3rem 2.5rem;
     position: relative; overflow: hidden;
+    box-shadow: 0 24px 50px -20px rgba(93,31,50,0.55);
   }
   .about-chips {
     display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 2rem;
@@ -179,6 +292,7 @@
     font-size: 0.72rem; letter-spacing: 0.1em;
     padding: 0.4rem 0.9rem; border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 6px 14px -8px rgba(0,0,0,0.4);
   }
 
   /* ── PROCESS ── */
@@ -207,7 +321,7 @@
     background: #0e0608 !important;
   }
   .proc-header {
-    padding: 5rem 3rem 3rem;
+    padding: 5rem 4.5rem 3rem;
     display: flex; justify-content: space-between; align-items: flex-end;
   }
   .proc-header-left .section-label { color: rgba(245,237,227,0.35); margin-bottom: 0.8rem; }
@@ -277,12 +391,12 @@
   .proc-col.active .proc-step-desc { color: rgba(245,237,227,0.65); }
   .proc-footer-bar {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 1rem 3rem;
+    padding: 1rem 4.5rem;
     border-top: 1px solid rgba(245,237,227,0.06);
   }
   .proc-footer-logo {
-    font-family: 'Gluten', sans-serif; font-size: 0.95rem;
-    font-weight: 800; letter-spacing: 0.02em;
+    font-family: 'Syne', sans-serif; font-size: 0.95rem;
+    font-weight: 800; letter-spacing: -0.01em;
     color: rgba(245,237,227,0.25); text-transform: uppercase;
   }
   .proc-footer-tag {
@@ -292,7 +406,7 @@
 
   /* ── PORTFOLIO ── */
   #portfolio {
-    padding: 7rem 3rem;
+    padding: 7rem 4.5rem;
     background: var(--burgundy);
   }
   #portfolio .section-title { color: var(--sky-light); }
@@ -349,7 +463,7 @@
 
   /* ── SERVICES / PRICING ── */
   #services {
-    padding: 7rem 3rem;
+    padding: 7rem 4.5rem;
     background: var(--sky-light);
   }
   .pricing-grid {
@@ -526,7 +640,7 @@
 
   /* ── CONTACT ── */
   #contact {
-    padding: 7rem 3rem;
+    padding: 7rem 4.5rem;
     background: var(--cream);
   }
   .contact-inner {
@@ -587,8 +701,9 @@
     letter-spacing: 0.05em; flex-wrap: wrap; gap: 1rem;
   }
   .footer-logo {
-    font-family: 'Gluten', sans-serif;
+    font-family: 'Syne', sans-serif;
     font-size: 1.15rem; font-weight: 800; color: var(--sky-light);
+    letter-spacing: -0.01em;
     text-transform: uppercase;
   }
 
@@ -601,8 +716,7 @@
 
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
-    nav { padding: 1rem 1.5rem; }
-    .nav-links { display: none; }
+    .layers-nav { width: 160px; padding: 0.8rem 0.9rem 1rem; top: 0.8rem; left: 0.8rem; }
     .hero { padding: 7rem 1.5rem 3rem; }
     #about { grid-template-columns: 1fr; padding: 5rem 1.5rem; gap: 3rem; }
     #portfolio, #services, #contact { padding: 5rem 1.5rem; }
@@ -618,24 +732,22 @@
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a class="nav-logo" href="#">WIIRED</a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#portfolio">Portfolio</a></li>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-  <div style="display:flex;gap:0.8rem;align-items:center;">
-    <a href="#services" class="nav-cta" style="background:rgba(255,255,255,0.12);border-color:#fff;">Book a Consult</a>
-    <a href="#portfolio" class="nav-cta">Projects</a>
-    <a href="#process" class="nav-cta">Process</a>
-  </div>
+<!-- NAV — a real Layers panel -->
+<nav class="layers-nav">
+  <a class="nav-logo" href="#home">WIIRED</a>
+  <div class="layers-head">Layers</div>
+  <a class="layer-row" href="#home"><span class="layer-dot" style="background:var(--burgundy)"></span>Hero</a>
+  <a class="layer-row" href="#about"><span class="layer-dot" style="background:var(--sky)"></span>About</a>
+  <a class="layer-row" href="#process"><span class="layer-dot" style="background:var(--lilac)"></span>Process</a>
+  <a class="layer-row" href="#portfolio"><span class="layer-dot" style="background:var(--sky)"></span>Portfolio</a>
+  <a class="layer-row" href="#services"><span class="layer-dot" style="background:var(--cream)"></span>Services</a>
+  <a class="layer-row" href="#contact"><span class="layer-dot" style="background:var(--lilac)"></span>Contact</a>
+  <a href="#services" class="layers-nav-cta">Book a Consult</a>
 </nav>
 
 <!-- HERO -->
-<section class="hero" id="home">
+<section class="hero canvas-frame" id="home">
+  <div class="frame-tag">01 · Hero</div>
   <div class="hero-tag">Seattle-Based Studio</div>
   <h1 class="hero-title">WIIRED<br/>STUDIO</h1>
   <p class="hero-sub">design & deploy</p>
@@ -653,7 +765,8 @@
 </section>
 
 <!-- ABOUT -->
-<section id="about">
+<section id="about" class="canvas-frame">
+  <div class="frame-tag">02 · About</div>
   <div data-reveal>
     <div class="about-label">Who We Are</div>
     <h2 class="about-title">Design that <em>works</em> as hard as you do.</h2>
@@ -681,7 +794,8 @@
 </section>
 
 <!-- PROCESS -->
-<section id="process">
+<section id="process" class="canvas-frame">
+  <div class="frame-tag">03 · Process</div>
   <div class="proc-header">
     <div class="proc-header-left">
       <div class="section-label">How We Work</div>
@@ -762,7 +876,8 @@
 </section>
 
 <!-- PORTFOLIO -->
-<section id="portfolio">
+<section id="portfolio" class="canvas-frame">
+  <div class="frame-tag">04 · Portfolio</div>
   <div class="section-header" data-reveal>
     <div class="section-label">Our Work</div>
     <h2 class="section-title" style="color:var(--sky-light)">Selected <em style="color:var(--sky)">projects</em></h2>
@@ -815,7 +930,8 @@
 </section>
 
 <!-- SERVICES / PRICING -->
-<section id="services">
+<section id="services" class="canvas-frame">
+  <div class="frame-tag">05 · Services</div>
   <div class="section-header" data-reveal>
     <div class="section-label">Services & Pricing</div>
     <h2 class="section-title">Simple, <em>transparent</em> pricing</h2>
@@ -870,7 +986,8 @@
 </section>
 
 <!-- CONTACT -->
-<section id="contact">
+<section id="contact" class="canvas-frame">
+  <div class="frame-tag">06 · Contact</div>
   <div class="contact-inner">
     <div data-reveal>
       <div class="contact-info-label">Get in Touch</div>
@@ -913,7 +1030,8 @@
 </section>
 
 <!-- FOOTER -->
-<footer>
+<footer class="canvas-frame">
+  <div class="frame-tag">07 · Footer</div>
   <div class="footer-logo">WIIRED Studio</div>
   <div>© 2026 WIIRED Studio · Seattle, WA</div>
 </footer>
@@ -959,6 +1077,29 @@
       <p>Thank you for choosing WIIRED Studio. We'll reach out to <strong id="success-email"></strong> within 48 hours to kick things off.</p>
     </div>
   </div>
+</div>
+
+<!-- CANVAS FLOATERS (decorative, draggable) -->
+<div class="floater figma-toolbar" aria-hidden="true">
+  <span class="tool-btn active">↖</span>
+  <span class="tool-btn">▢</span>
+  <span class="tool-btn">✎</span>
+  <span class="tool-btn">T</span>
+  <span class="tool-btn">💬</span>
+</div>
+
+<div class="floater cursor-tag" aria-hidden="true">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 1l5.5 13 2-5.5L14 6.5z" fill="#b8dde8" stroke="#1b1c1f" stroke-width="1"/></svg>
+  <span>Nami</span>
+</div>
+
+<div class="floater sticky-note" aria-hidden="true">shipping soon 🚀</div>
+
+<div class="floater swatch-cluster" aria-hidden="true">
+  <span class="swatch" style="background:var(--burgundy)"></span>
+  <span class="swatch" style="background:var(--sky)"></span>
+  <span class="swatch" style="background:var(--lilac)"></span>
+  <span class="swatch" style="background:var(--cream)"></span>
 </div>
 
 <script>
@@ -1069,6 +1210,35 @@ function handleContactForm(e) {
   success.style.display = 'block';
   setTimeout(() => success.style.display = 'none', 5000);
 }
+
+// ── CANVAS FLOATERS (draggable decorative elements) ──
+let topFloaterZ = 300;
+document.querySelectorAll('.floater').forEach(el => {
+  el.addEventListener('pointerdown', e => {
+    const rect = el.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    el.style.left = rect.left + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.zIndex = ++topFloaterZ;
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+
+    function onMove(ev) {
+      el.style.left = (ev.clientX - offsetX) + 'px';
+      el.style.top = (ev.clientY - offsetY) + 'px';
+    }
+    function onUp() {
+      el.classList.remove('dragging');
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+    }
+    el.addEventListener('pointermove', onMove);
+    el.addEventListener('pointerup', onUp);
+  });
+});
 </script>
 </body>
 </html>
