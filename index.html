@@ -6,7 +6,7 @@
 <title>WIIRED Studio — Design & Deploy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&family=Gluten:wght@400;700;800;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Gluten:wght@400;700;800;900&family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://js.stripe.com/v3/"></script>
 
 <style>
@@ -18,298 +18,128 @@
     --sky-light: #d6edf5;
     --lilac: #c8a8d8;
     --off-white: #faf6f1;
+    --ink: #0c0c0e;
+    --ink-2: #17171a;
     --charcoal: #1a1a1a;
     --muted: #6b5a5a;
     --border: rgba(125,45,69,0.15);
+    --r-lg: 26px;
+    --r-md: 14px;
+    --r-pill: 999px;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
-
   body {
     font-family: 'Syne', sans-serif;
-    background-color: #1b1c1f;
-    background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1.5px);
-    background-size: 26px 26px;
-    background-position: -4px -4px;
+    background: var(--ink);
     color: var(--charcoal);
     overflow-x: hidden;
-    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M2 1L2 16.5L6 13L8.5 18.5L11 17.3L8.5 12L14 12Z' fill='white' stroke='black' stroke-width='1.1' stroke-linejoin='round'/></svg>") 2 1, auto;
   }
-  a, button, [onclick] { cursor: pointer; }
-  input, textarea, select { cursor: text; }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; }
+  section { position: relative; }
 
-  /* ── CANVAS FRAMES ── */
-  .canvas-frame {
-    position: relative;
-    margin: 3.5rem auto;
-    max-width: min(1180px, calc(100% - 10rem));
-    border-radius: 20px;
-    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05);
-  }
-  #home.canvas-frame { margin-top: 3.5rem; overflow: visible; }
-  footer.canvas-frame { margin-bottom: 4rem; }
-  .frame-tag {
-    position: absolute; top: -1.9rem; left: 0.4rem;
-    display: flex; align-items: center; gap: 0.4rem;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem; letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.38);
-    pointer-events: none; user-select: none;
-  }
-  .frame-tag::before {
-    content: ''; width: 6px; height: 6px; border-radius: 1px;
-    background: rgba(184,221,232,0.55);
-  }
-
-  /* ── DRAGGABLE CANVAS FLOATERS ── */
-  .floater { cursor: grab; touch-action: none; user-select: none; }
-  .floater.dragging { cursor: grabbing; }
-
-  .figma-toolbar {
-    position: fixed; bottom: 1.75rem; left: calc(50% - 118px);
-    display: flex; gap: 0.35rem; z-index: 250;
-    background: rgba(35,36,40,0.92);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px; padding: 0.5rem 0.6rem;
-    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+  /* ── NAV (corner-anchored) ── */
+  .brand-mark {
+    position: fixed; top: 1.4rem; left: 1.4rem; z-index: 300;
+    display: flex; align-items: center;
+    padding: 0.55rem 0.8rem;
+    background: rgba(12,12,14,0.7);
     backdrop-filter: blur(10px);
-  }
-  .figma-toolbar.dragging { box-shadow: 0 26px 60px -10px rgba(0,0,0,0.7); }
-  .tool-btn {
-    width: 34px; height: 34px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.55); font-size: 0.95rem;
-  }
-  .tool-btn.active { background: var(--burgundy); color: #fff; }
-
-  .layers-head {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: rgba(255,255,255,0.35); margin-bottom: 0.55rem;
-  }
-  .layer-row {
-    font-family: 'Space Mono', monospace;
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.72rem; color: rgba(255,255,255,0.65);
-    padding: 0.28rem 0;
-  }
-  .layer-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
-
-  .cursor-tag {
-    position: fixed; top: 48vh; left: 6vw; z-index: 250;
-    display: flex; align-items: center; gap: 0.4rem;
-  }
-  .cursor-tag span {
-    background: var(--sky); color: var(--burgundy-dark);
-    font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700;
-    padding: 0.25rem 0.6rem; border-radius: 3px 10px 10px 10px;
-    box-shadow: 0 10px 25px -8px rgba(0,0,0,0.5);
-  }
-
-  .sticky-note {
-    position: fixed; top: 58vh; right: 8vw; z-index: 250;
-    width: 118px;
-    background: #f2d768; color: #4a3a00;
-    font-family: 'Space Mono', monospace; font-size: 0.72rem; line-height: 1.4;
-    padding: 0.9rem 1rem; border-radius: 2px;
-    transform: rotate(-4deg);
-    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-  }
-
-  .swatch-cluster {
-    position: fixed; top: 16vh; right: 4vw; z-index: 250;
-    display: flex; gap: 0.4rem;
-    background: rgba(35,36,40,0.92);
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 0.6rem; border-radius: 10px;
-    transform: rotate(-2deg);
-    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
-  }
-  .swatch { width: 22px; height: 22px; border-radius: 4px; display: block; }
-
-  @media (max-width: 768px) {
-    .canvas-frame { max-width: calc(100% - 1.5rem); margin: 1.75rem auto; border-radius: 12px; }
-    #home.canvas-frame { margin-top: 5.5rem; }
-    .frame-tag { font-size: 0.62rem; top: -1.5rem; }
-    .cursor-tag, .sticky-note, .swatch-cluster { display: none; }
-    .layers-nav { max-height: 60vh; overflow-y: auto; }
-  }
-
-  /* ── NAV (Layers panel) ── */
-  .layers-nav {
-    position: fixed; top: 1.25rem; left: 1.25rem; z-index: 300;
-    width: 196px;
-    background: rgba(30,31,34,0.92);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 1rem 1.1rem 1.2rem;
-    box-shadow: 0 20px 50px -14px rgba(0,0,0,0.6);
-    backdrop-filter: blur(14px);
-    display: flex; flex-direction: column;
-  }
-  .layers-nav .nav-logo {
-    display: block;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: var(--r-pill);
     text-decoration: none;
-    margin-bottom: 0.9rem;
   }
-  .layers-nav .nav-logo img {
-    display: block;
-    height: 1.3rem;
-    width: auto;
+  .brand-mark img { height: 1.05rem; width: auto; }
+  .nav-stack {
+    position: fixed; top: 1.4rem; right: 1.4rem; z-index: 300;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 0.6rem;
+    padding: 0.9rem 1.1rem;
+    background: rgba(12,12,14,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: var(--r-md);
+    list-style: none;
   }
-  .layers-nav .layers-head {
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-top: 0.7rem; margin-bottom: 0.3rem;
+  .nav-stack a {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: rgba(245,237,227,0.55); text-decoration: none;
+    transition: color 0.2s;
   }
-  .layers-nav .layer-row {
-    text-decoration: none; cursor: pointer;
-    border-radius: 6px; padding: 0.4rem 0.5rem; margin: 0 -0.5rem;
-    transition: background 0.15s, color 0.15s;
+  .nav-stack a:hover { color: #fff; }
+  .nav-stack .nav-cta-mini {
+    color: var(--sky-light); font-weight: 700;
+    margin-top: 0.15rem; padding-top: 0.55rem;
+    border-top: 1px solid rgba(255,255,255,0.12);
   }
-  .layers-nav .layer-row:hover { background: rgba(255,255,255,0.07); color: #fff; }
-  .layers-nav-cta {
-    margin-top: 0.9rem;
-    background: var(--burgundy); color: #fff;
-    font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
-    text-align: center; text-decoration: none;
-    padding: 0.6rem; border-radius: 6px;
-    transition: background 0.2s;
+
+  @media (max-width: 860px) {
+    .brand-mark, .nav-stack { padding: 0.5rem 0.7rem; }
+    .nav-stack { gap: 0.45rem; }
+    .nav-stack a { font-size: 0.62rem; }
   }
-  .layers-nav-cta:hover { background: var(--burgundy-dark); }
 
   /* ── HERO ── */
   .hero {
+    background: #000;
     min-height: 100vh;
-    background: var(--burgundy);
-    display: flex; flex-direction: column;
-    justify-content: flex-end;
-    padding: 8rem 4.5rem 4rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 3rem 0;
     position: relative; overflow: hidden;
   }
-  .hero-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(3.5rem, 10vw, 8rem);
-    font-weight: 800; color: var(--sky-light);
-    line-height: 0.92; letter-spacing: -0.02em;
-    margin-bottom: 0.6rem; text-transform: uppercase;
-  }
-  .hero-logo-img {
-    display: block;
-    height: 0.8em;
-    width: auto;
-    margin-bottom: 0.05em;
-  }
-  .hero-title-studio {
-    display: block;
-    height: 0.8em;
-    width: auto;
+  .hero-content { display: flex; flex-direction: column; align-items: center; transform: translateY(-80px); }
+  .hero-badge { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-bottom: 2.5rem; }
+  .hero-badge img { height: clamp(3rem, 8vw, 5.5rem); width: auto; }
+  .hero-badge span {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(245,237,227,0.4);
   }
   .hero-sub {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic; font-size: clamp(1.4rem, 3.5vw, 2.4rem);
-    color: rgba(255,255,255,0.65); margin-bottom: 3rem;
-    letter-spacing: 0.01em;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.95rem; color: rgba(245,237,227,0.5);
+    max-width: 420px; margin-bottom: 2.2rem;
   }
-  .hero-desc {
-    max-width: 480px;
-    font-size: 1rem; line-height: 1.7;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 2.5rem;
+  .hero-cta-link {
+    background: var(--burgundy); color: #fff;
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.85rem;
+    padding: 0.95rem 1.9rem; border-radius: var(--r-pill);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: all 0.25s; margin-bottom: 4rem;
   }
-  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .btn-primary {
-    background: var(--sky-light); color: var(--burgundy-dark);
-    font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 0.9rem 2.2rem; border: none; border-radius: 2px;
-    cursor: pointer; transition: all 0.25s; text-decoration: none;
-    display: inline-block;
-  }
-  .btn-primary:hover { background: #fff; transform: translateY(-1px); }
-  .btn-outline {
-    background: transparent; color: rgba(255,255,255,0.8);
-    font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 0.9rem 2.2rem; border: 1.5px solid rgba(255,255,255,0.35);
-    border-radius: 2px; cursor: pointer; transition: all 0.25s;
-    text-decoration: none; display: inline-block;
-  }
-  .btn-outline:hover { border-color: rgba(255,255,255,0.75); color: #fff; }
+  .hero-cta-link:hover { background: var(--burgundy-dark); transform: translateY(-2px); }
 
-  .hero-scroll {
-    position: absolute; bottom: 2.5rem; right: 3rem;
-    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-    color: rgba(255,255,255,0.35);
-    font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em;
+  .hero-deck {
+    position: absolute; left: 50%; bottom: -114px;
+    width: min(760px, 92vw);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, 70px) scale(0.75) rotate(-5deg);
   }
-  .scroll-line {
-    width: 1px; height: 50px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
-    animation: scrollPulse 2s ease-in-out infinite;
+  .hero-deck.pop {
+    animation: deckPop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
-  @keyframes scrollPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+  @keyframes deckPop {
+    0%   { opacity: 0; transform: translate(-50%, 70px) scale(0.75) rotate(-5deg); }
+    55%  { opacity: 1; transform: translate(-50%, -14px) scale(1.05) rotate(2deg); }
+    78%  { transform: translate(-50%, 6px) scale(0.98) rotate(-1deg); }
+    100% { opacity: 1; transform: translate(-50%, 0) scale(1) rotate(0deg); }
+  }
+  .hero-deck img { display: block; width: 100%; height: auto; }
 
-  /* ── ABOUT ── */
-  #about {
-    padding: 7rem 4.5rem;
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 5rem; align-items: center;
-    background: var(--cream);
-  }
-  .about-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--burgundy); margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 0.8rem;
-  }
-  .about-label::after {
-    content: ''; flex: 1; height: 1px; background: var(--border);
-  }
-  .about-title {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(2.2rem, 4vw, 3.5rem);
-    line-height: 1.15; color: var(--burgundy-dark);
-    margin-bottom: 1.8rem;
-  }
-  .about-title em { font-style: italic; color: var(--burgundy); }
-  .about-body {
-    font-size: 1.05rem; line-height: 1.85;
-    color: var(--muted); margin-bottom: 2rem;
-  }
-  .about-visual {
-    background: var(--burgundy);
-    border-radius: 10px;
-    padding: 3rem 2.5rem;
-    position: relative; overflow: hidden;
-    box-shadow: 0 24px 50px -20px rgba(93,31,50,0.55);
-  }
-  .about-chips {
-    display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 2rem;
-  }
-  .chip {
-    background: rgba(255,255,255,0.1);
-    color: var(--sky-light);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem; letter-spacing: 0.1em;
-    padding: 0.4rem 0.9rem; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 6px 14px -8px rgba(0,0,0,0.4);
+  @media (max-width: 860px) {
+    .hero { padding: 6.5rem 1.5rem 0; }
+    .hero-deck { bottom: -70px; width: min(520px, 96vw); }
   }
 
-  /* ── PROCESS ── */
-  #process {
-    padding: 7rem 3rem;
-    background: var(--off-white);
-  }
-  .section-header {
-    text-align: center; margin-bottom: 5rem;
-  }
+  /* ── SECTION HEADERS ── */
+  .section-header { text-align: center; margin-bottom: 4.5rem; }
   .section-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--burgundy); margin-bottom: 1rem;
   }
   .section-title {
@@ -319,245 +149,308 @@
   }
   .section-title em { font-style: italic; color: var(--burgundy); }
 
-  /* ── PROCESS TIMELINE ── */
-  #process {
-    padding: 0 !important;
-    background: #0e0608 !important;
+  /* ── ABOUT / WHAT WE DO ── */
+  #about { background: var(--cream); padding: 8rem 3rem; }
+  .about-inner { max-width: 1080px; margin: 0 auto; }
+  .about-eyebrow {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--burgundy); margin-bottom: 3rem;
   }
-  .proc-header {
-    padding: 5rem 4.5rem 3rem;
-    display: flex; justify-content: space-between; align-items: flex-end;
+  .about-lede {
+    font-family: 'Instrument Sans', sans-serif; font-weight: 500;
+    font-size: clamp(1.6rem, 3.4vw, 2.9rem);
+    line-height: 1.35; color: rgba(125,45,69,0.32);
   }
-  .proc-header-left .section-label { color: rgba(245,237,227,0.35); margin-bottom: 0.8rem; }
-  .proc-header-left .section-title { color: #f5ede3; }
-  .proc-header-left .section-title em { color: var(--sky); }
-  .proc-sub-right {
-    font-size: 0.85rem; color: rgba(245,237,227,0.35);
-    max-width: 200px; line-height: 1.65; text-align: right;
+  .about-lede strong { color: var(--burgundy-dark); font-weight: 700; }
+  .about-lede .type-cursor {
+    display: inline-block; color: var(--burgundy-dark); font-weight: 500;
+    animation: caretBlink 0.9s steps(1) infinite;
   }
-  .proc-timeline-wrap { position: relative; }
-  .proc-timeline-line {
-    position: absolute; top: 36px; left: 0; right: 0;
-    height: 1px; background: rgba(245,237,227,0.08); z-index: 0;
+  @keyframes caretBlink { 50% { opacity: 0; } }
+  .about-meta-row {
+    display: flex; align-items: center; justify-content: flex-end;
+    margin-top: 4rem; padding-top: 2rem;
+    border-top: 1px solid var(--border);
   }
+  .about-arrow {
+    height: 46px; padding: 0 1.4rem; border-radius: var(--r-pill);
+    background: var(--burgundy); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'Instrument Sans', sans-serif; font-weight: 700;
+    font-size: 0.95rem; text-decoration: none; flex-shrink: 0;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .about-arrow:hover { background: var(--burgundy-dark); transform: translateX(3px); }
+
+  /* ── EXPLORE (Process / Projects / People stack) ── */
+  #explore { background: var(--ink); padding: 7rem 3rem 5rem; }
+  .stack-wrap { max-width: 1240px; margin: 0 auto; }
+  .stack-item { border-top: 1px solid rgba(245,237,227,0.12); }
+  .stack-item:last-child { border-bottom: 1px solid rgba(245,237,227,0.12); }
+  .stack-header {
+    position: relative;
+    display: flex; align-items: center; gap: 1.5rem;
+    padding: 2rem 0; cursor: pointer;
+  }
+  .stack-title {
+    font-family: 'Instrument Sans', sans-serif; font-weight: 700;
+    font-size: clamp(2.1rem, 6vw, 4rem); line-height: 1;
+    color: rgba(245,237,227,0.8); text-align: left;
+    transition: color 0.25s;
+  }
+  .stack-header:hover .stack-title, .stack-item.open .stack-title { color: #f5ede3; }
+  .stack-pills {
+    position: absolute; left: 10%; bottom: calc(100% - 0.4rem);
+    display: flex; pointer-events: none;
+  }
+  .stack-pill {
+    font-family: 'Instrument Sans', sans-serif; font-weight: 700;
+    font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 0.45rem 1rem; border-radius: var(--r-pill);
+    white-space: nowrap; box-shadow: 0 14px 26px -10px rgba(0,0,0,0.5);
+    opacity: 0; transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .stack-pill:nth-child(odd) { background: var(--sky); color: var(--burgundy-dark); }
+  .stack-pill:nth-child(even) { background: var(--burgundy); color: #fff; }
+  .stack-pill:nth-child(1) { transform: translateY(20px) rotate(-9deg); z-index: 3; }
+  .stack-pill:nth-child(2) { transform: translateY(20px) rotate(5deg); margin-left: -12px; z-index: 2; }
+  .stack-pill:nth-child(3) { transform: translateY(20px) rotate(-4deg); margin-left: -12px; z-index: 1; }
+  .stack-header:hover .stack-pill:nth-child(1) { opacity: 1; transform: translateY(0) rotate(-9deg); transition-delay: 0s; }
+  .stack-header:hover .stack-pill:nth-child(2) { opacity: 1; transform: translateY(0) rotate(5deg); transition-delay: 0.06s; }
+  .stack-header:hover .stack-pill:nth-child(3) { opacity: 1; transform: translateY(0) rotate(-4deg); transition-delay: 0.12s; }
+  .stack-toggle {
+    width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+    border: 1.5px solid rgba(245,237,227,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: #f5ede3; font-size: 1.15rem;
+    transition: transform 0.35s ease, background 0.25s, border-color 0.25s;
+  }
+  .stack-item.open .stack-toggle { transform: rotate(90deg); background: var(--burgundy); border-color: var(--burgundy); }
+  .stack-panel-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.45s ease; }
+  .stack-item.open .stack-panel-wrap { grid-template-rows: 1fr; }
+  .stack-panel-inner { overflow: hidden; }
+  .stack-item.open .stack-panel-inner { overflow: visible; }
+  .stack-subtitle {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.95rem; line-height: 1.6;
+    color: rgba(245,237,227,0.45);
+    max-width: 520px;
+    padding: 0.5rem 0 2rem;
+  }
+  .people-panel {
+    padding: 0.5rem 0 3.5rem; max-width: 1000px;
+    display: flex; gap: 3rem; align-items: flex-start; flex-wrap: wrap;
+  }
+  .people-content {
+    flex: 1; min-width: 320px; max-width: 620px;
+    display: flex; align-items: flex-start;
+  }
+  .people-shapes-wrap { position: relative; width: 100%; }
+  .people-shapes-img { display: block; width: 100%; height: auto; opacity: 0; }
+  .people-shapes-wrap.fall .people-shapes-img {
+    animation: shapesFall 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes shapesFall {
+    0%   { opacity: 0; transform: translateY(-140px) rotate(-6deg); }
+    55%  { opacity: 1; transform: translateY(16px) rotate(2deg); }
+    78%  { transform: translateY(-6px) rotate(-1deg); }
+    100% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  }
+  .shape-label {
+    position: absolute; text-align: center; pointer-events: none;
+    opacity: 0;
+  }
+  .people-shapes-wrap.fall .shape-label {
+    animation: labelFadeIn 0.4s ease forwards;
+    animation-delay: 0.6s;
+  }
+  @keyframes labelFadeIn { to { opacity: 1; } }
+  .shape-label-title {
+    font-family: 'Fredoka', sans-serif; font-weight: 700;
+    font-size: clamp(0.9rem, 2.1vw, 1.4rem); line-height: 1.05;
+  }
+  .shape-label-sub {
+    font-family: 'Instrument Sans', sans-serif; font-weight: 500;
+    font-size: clamp(0.58rem, 0.95vw, 0.72rem); line-height: 1.25;
+    margin-top: 0.25rem; opacity: 0.85;
+  }
+  .label-founders { left: 31.8%; top: 32.5%; width: 46%; transform: translate(-50%,-50%) rotate(-28deg); color: var(--burgundy-dark); }
+  .label-based { left: 34.2%; top: 80.7%; width: 50%; transform: translate(-50%,-50%) rotate(0deg); color: #fff; }
+  .label-est { left: 77%; top: 69.4%; width: 34%; transform: translate(-50%,-50%) rotate(38deg); color: var(--burgundy-dark); }
+  .label-founders .shape-label-title, .label-est .shape-label-title, .label-based .shape-label-title {
+    font-size: clamp(1.15rem, 2.8vw, 1.85rem);
+  }
+  .label-founders .shape-label-sub, .label-est .shape-label-sub, .label-based .shape-label-sub {
+    font-size: clamp(0.72rem, 1.2vw, 0.88rem);
+  }
+  .people-photo {
+    display: block; width: 320px; max-width: 100%; flex-shrink: 0;
+    border-radius: var(--r-lg);
+    box-shadow: 0 30px 60px -24px rgba(0,0,0,0.55);
+  }
+  .people-links {
+    display: flex; flex-direction: column; gap: 0.9rem;
+    padding-top: 0.5rem; flex-shrink: 0;
+  }
+  .people-links-caption {
+    font-family: 'Instrument Sans', sans-serif; font-size: 0.78rem;
+    color: rgba(245,237,227,0.4);
+  }
+  .people-link-pill {
+    background: var(--burgundy); color: #fff;
+    font-family: 'Instrument Sans', sans-serif; font-weight: 700;
+    font-size: 0.78rem; text-align: center;
+    padding: 0.6rem 1.2rem; border-radius: var(--r-pill);
+    text-decoration: none; transition: background 0.2s, transform 0.2s;
+  }
+  .people-link-pill:hover { background: var(--burgundy-dark); transform: translateY(-2px); }
+  .proc-timeline-wrap { padding: 0.5rem 0 3.5rem; position: relative; }
   .proc-columns {
     display: grid; grid-template-columns: repeat(6, 1fr);
+    border-radius: var(--r-lg); overflow: hidden;
+    background: var(--ink-2);
   }
   .proc-col {
     position: relative; cursor: pointer;
-    transition: background 0.25s;
+    transition: background-color 0.3s;
     border-left: 1px solid rgba(245,237,227,0.06);
   }
   .proc-col:first-child { border-left: none; }
-  .proc-col-inner {
-    padding: 0 1.5rem 2.5rem;
-    height: 100%; display: flex; flex-direction: column;
-  }
-  .proc-col.active { background: var(--burgundy); }
+  .proc-col-inner { padding: 2.2rem 1.5rem 2.4rem; height: 100%; display: flex; flex-direction: column; }
+  .proc-col.active { background-color: var(--burgundy); }
   .proc-col-accent {
     position: absolute; top: 0; left: 0; right: 0;
-    height: 3px; background: var(--sky); opacity: 0;
-    transition: opacity 0.25s;
+    height: 3px; background: var(--sky); opacity: 0; transition: opacity 0.25s;
   }
   .proc-col.active .proc-col-accent { opacity: 1; }
-  .proc-dot-wrap {
-    height: 72px; display: flex; align-items: center;
-    position: relative; z-index: 1;
-  }
+  .proc-dot-wrap { height: 34px; display: flex; align-items: center; }
   .proc-dot {
-    width: 14px; height: 14px; border-radius: 50%;
-    background: rgba(245,237,227,0.12);
-    border: 2px solid rgba(245,237,227,0.18);
+    width: 12px; height: 12px; border-radius: 50%;
+    background: rgba(245,237,227,0.12); border: 2px solid rgba(245,237,227,0.18);
     transition: all 0.25s;
   }
-  .proc-col.active .proc-dot {
-    background: #f5ede3; border-color: #f5ede3;
-    width: 18px; height: 18px;
-  }
+  .proc-col.active .proc-dot { background: #f5ede3; border-color: #f5ede3; width: 15px; height: 15px; }
   .proc-step-num {
-    font-family: 'Space Mono', monospace;
-    font-size: 2rem; font-weight: 700;
-    color: rgba(245,237,227,0.08);
-    line-height: 1; margin-bottom: 0.6rem;
-    transition: color 0.25s;
+    font-family: 'Instrument Sans', sans-serif; font-weight: 700;
+    font-size: 2.6rem; color: rgba(245,237,227,0.1);
+    line-height: 1; margin-bottom: 1.2rem; transition: color 0.25s;
   }
-  .proc-col.active .proc-step-num { color: rgba(245,237,227,0.18); }
+  .proc-col.active .proc-step-num { color: rgba(245,237,227,0.22); }
   .proc-step-name {
     font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 0.95rem; color: rgba(245,237,227,0.4);
+    font-size: 0.95rem; color: rgba(245,237,227,0.45);
     margin-bottom: 0.6rem; transition: color 0.25s;
   }
   .proc-col.active .proc-step-name { color: #f5ede3; }
   .proc-step-desc {
-    font-size: 0.78rem; color: rgba(245,237,227,0.25);
+    font-size: 0.78rem; color: rgba(245,237,227,0.28);
     line-height: 1.65; transition: color 0.25s;
   }
-  .proc-col.active .proc-step-desc { color: rgba(245,237,227,0.65); }
-  .proc-footer-bar {
-    display: flex; justify-content: flex-end; align-items: center;
-    padding: 1rem 4.5rem;
-    border-top: 1px solid rgba(245,237,227,0.06);
-  }
-  .proc-footer-tag {
-    font-size: 0.72rem; color: rgba(245,237,227,0.18);
-    letter-spacing: 0.06em;
-  }
+  .proc-col.active .proc-step-desc { color: rgba(245,237,227,0.68); }
 
-  /* ── PORTFOLIO ── */
-  #portfolio {
-    padding: 7rem 4.5rem;
-    background: var(--burgundy);
-  }
-  #portfolio .section-title { color: var(--sky-light); }
-  #portfolio .section-label { color: var(--sky); }
+  /* ── PROJECTS (cards, inside stack panel) ── */
 
-  .portfolio-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+  .work-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; max-width: 1100px; margin: 0 auto; padding: 0.5rem 0 4rem;
   }
-  .portfolio-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 3px; overflow: hidden;
-    transition: transform 0.2s, background 0.2s;
-    cursor: pointer;
+  .work-card {
+    background: var(--cream);
+    border-radius: var(--r-lg);
+    padding: 2rem;
+    box-shadow: 0 30px 60px -24px rgba(0,0,0,0.4);
+    position: relative;
   }
-  .portfolio-card:hover {
-    transform: translateY(-4px);
-    background: rgba(255,255,255,0.1);
+  .work-sparkle {
+    position: absolute; top: 1.7rem; right: 1.7rem;
+    color: var(--burgundy); font-size: 1rem; opacity: 0.55;
   }
-  .card-thumb {
-    height: 200px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Mono', monospace; font-size: 4rem;
-    font-weight: 700; letter-spacing: -0.05em;
-    position: relative; overflow: hidden;
+  .work-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.6rem; }
+  .work-tag {
+    font-family: 'Instrument Sans', sans-serif; font-weight: 700;
+    font-size: 0.65rem; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--burgundy-dark); border: 1.5px solid var(--border);
+    padding: 0.4rem 0.9rem; border-radius: var(--r-pill);
   }
-  .card-thumb-crow { background: linear-gradient(135deg, #3d2a5f 0%, #6b4fa0 100%); color: rgba(255,255,255,0.15); }
-  .card-thumb-wired { background: linear-gradient(135deg, var(--burgundy-dark) 0%, #b04060 100%); color: rgba(255,255,255,0.1); }
-  .card-thumb-tbd { background: linear-gradient(135deg, #2a4a5f 0%, #4a7a9b 100%); color: rgba(255,255,255,0.1); }
-  .card-badge {
-    position: absolute; top: 1rem; left: 1rem;
-    background: rgba(255,255,255,0.15);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
-    color: rgba(255,255,255,0.9); padding: 0.3rem 0.7rem; border-radius: 20px;
+  .work-desc {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.9rem; line-height: 1.7; color: var(--muted);
+    margin-bottom: 2.2rem;
   }
-  .card-body { padding: 1.5rem; }
-  .card-title {
-    font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem;
-  }
-  .card-desc {
-    font-size: 0.87rem; line-height: 1.6;
-    color: rgba(255,255,255,0.55);
-  }
-  .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
-  .card-tag {
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
-    letter-spacing: 0.08em; color: var(--sky);
-    border: 1px solid rgba(184,221,232,0.3);
-    padding: 0.2rem 0.6rem; border-radius: 2px;
+  .work-name {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 2.1rem; line-height: 1;
+    color: color-mix(in srgb, var(--lilac), var(--burgundy-dark) 45%);
   }
 
   /* ── SERVICES / PRICING ── */
-  #services {
-    padding: 7rem 4.5rem;
-    background: var(--sky-light);
-  }
+  #services { padding: 7.5rem 3rem; background: var(--sky-light); }
   .pricing-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem; max-width: 1000px; margin: 0 auto;
+    gap: 1.5rem; max-width: 1040px; margin: 0 auto;
   }
   .pricing-card {
     background: #fff;
     border: 1px solid var(--border);
-    border-radius: 3px; padding: 2.5rem 2rem;
+    border-radius: var(--r-lg); padding: 2.6rem 2.1rem;
     position: relative; overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.25s, box-shadow 0.25s;
   }
-  .pricing-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 48px rgba(125,45,69,0.14);
-  }
-  .pricing-card.featured {
-    background: var(--burgundy); border-color: var(--burgundy);
-  }
+  .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(125,45,69,0.14); }
+  .pricing-card.featured { background: var(--burgundy); border-color: var(--burgundy); }
   .featured-badge {
-    position: absolute; top: 1.2rem; right: -1.5rem;
+    position: absolute; top: 1.4rem; right: 1.4rem;
     background: var(--sky-light); color: var(--burgundy-dark);
-    font-family: 'Space Mono', monospace; font-size: 0.62rem;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 0.3rem 2rem; transform: rotate(30deg);
+    font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.1rem;
+    padding: 0.3rem 1rem; border-radius: var(--r-pill);
+    transform: rotate(4deg);
   }
   .plan-name {
-    font-family: 'Space Mono', monospace; font-size: 0.75rem;
+    font-family: 'Instrument Sans', sans-serif; font-size: 0.75rem;
     letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--burgundy); margin-bottom: 0.8rem;
+    color: var(--burgundy); margin-bottom: 0.9rem;
   }
   .featured .plan-name { color: var(--sky-light); }
-  .plan-price {
-    font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 2.8rem; color: var(--charcoal); line-height: 1;
-    margin-bottom: 0.3rem;
-  }
+  .plan-price { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.8rem; color: var(--charcoal); line-height: 1; margin-bottom: 0.3rem; }
   .featured .plan-price { color: #fff; }
-  .plan-period {
-    font-size: 0.82rem; color: var(--muted); margin-bottom: 1.8rem;
-  }
+  .plan-period { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.9rem; }
   .featured .plan-period { color: rgba(255,255,255,0.6); }
   .plan-features { list-style: none; margin-bottom: 2rem; }
   .plan-features li {
     font-size: 0.9rem; color: var(--muted);
-    padding: 0.55rem 0; border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 0.7rem;
   }
-  .featured .plan-features li {
-    color: rgba(255,255,255,0.75); border-bottom-color: rgba(255,255,255,0.1);
-  }
-  .plan-features li::before {
-    content: '→'; color: var(--burgundy);
-    font-family: 'Space Mono', monospace; font-size: 0.85rem;
-  }
+  .featured .plan-features li { color: rgba(255,255,255,0.75); border-bottom-color: rgba(255,255,255,0.1); }
+  .plan-features li::before { content: '→'; color: var(--burgundy); font-family: 'Instrument Sans', sans-serif; font-size: 0.85rem; }
   .featured .plan-features li::before { color: var(--sky-light); }
   .plan-btn {
     width: 100%;
     background: var(--burgundy); color: #fff;
     font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 0.9rem; border: 2px solid var(--burgundy);
-    border-radius: 2px; cursor: pointer; transition: all 0.2s;
+    font-size: 0.82rem; letter-spacing: 0.04em;
+    padding: 0.95rem; border: 2px solid var(--burgundy);
+    border-radius: var(--r-pill); cursor: pointer; transition: all 0.2s;
   }
-  .plan-btn:hover {
-    background: var(--burgundy-dark); border-color: var(--burgundy-dark);
-  }
-  .featured .plan-btn {
-    background: var(--sky-light); color: var(--burgundy-dark);
-    border-color: var(--sky-light);
-  }
-  .featured .plan-btn:hover {
-    background: #fff; border-color: #fff;
-  }
+  .plan-btn:hover { background: var(--burgundy-dark); border-color: var(--burgundy-dark); }
+  .featured .plan-btn { background: var(--sky-light); color: var(--burgundy-dark); border-color: var(--sky-light); }
+  .featured .plan-btn:hover { background: #fff; border-color: #fff; }
 
   /* ── PAYMENT MODAL ── */
   .modal-overlay {
     display: none; position: fixed; inset: 0; z-index: 500;
-    background: rgba(30,10,15,0.7); backdrop-filter: blur(6px);
-    align-items: center; justify-content: center;
-    padding: 2rem;
+    background: rgba(12,12,14,0.75); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 2rem;
   }
   .modal-overlay.open { display: flex; }
   .modal {
-    background: #fff; border-radius: 4px;
-    width: 100%; max-width: 540px;
-    max-height: 90vh; overflow-y: auto;
+    background: #fff; border-radius: var(--r-lg);
+    width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto;
     padding: 3rem;
     animation: modalIn 0.3s cubic-bezier(0.2,0,0,1);
   }
-  @keyframes modalIn {
-    from { opacity:0; transform:translateY(20px) scale(0.98); }
-    to { opacity:1; transform:none; }
-  }
+  @keyframes modalIn { from { opacity:0; transform:translateY(20px) scale(0.98); } to { opacity:1; transform:none; } }
   .modal-close {
     position: absolute; top: 1.2rem; right: 1.2rem;
     background: none; border: none; cursor: pointer;
@@ -565,34 +458,28 @@
   }
   .modal-header { margin-bottom: 2rem; }
   .modal-label {
-    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    font-family: 'Instrument Sans', sans-serif; font-size: 0.7rem;
     letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--burgundy); margin-bottom: 0.5rem;
   }
-  .modal-title {
-    font-family: 'Instrument Serif', serif;
-    font-size: 1.9rem; color: var(--burgundy-dark);
-  }
+  .modal-title { font-family: 'Instrument Serif', serif; font-size: 1.9rem; color: var(--burgundy-dark); }
   .modal-plan-info {
-    background: var(--cream); border-radius: 3px;
+    background: var(--cream); border-radius: var(--r-md);
     padding: 1.2rem 1.4rem; margin-bottom: 2rem;
     display: flex; justify-content: space-between; align-items: center;
   }
   .modal-plan-name { font-weight: 700; color: var(--charcoal); }
-  .modal-plan-price {
-    font-family: 'Space Mono', monospace;
-    font-weight: 700; color: var(--burgundy); font-size: 1.2rem;
-  }
+  .modal-plan-price { font-family: 'Instrument Sans', sans-serif; font-weight: 700; color: var(--burgundy); font-size: 1.2rem; }
 
   .form-group { margin-bottom: 1.3rem; }
   .form-label {
     display: block; font-family: 'Syne', sans-serif;
-    font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em;
+    font-weight: 700; font-size: 0.8rem; letter-spacing: 0.03em;
     color: var(--charcoal); margin-bottom: 0.5rem;
   }
   .form-input {
-    width: 100%; padding: 0.8rem 1rem;
-    border: 1.5px solid var(--border); border-radius: 2px;
+    width: 100%; padding: 0.85rem 1.1rem;
+    border: 1.5px solid var(--border); border-radius: var(--r-md);
     font-family: 'Syne', sans-serif; font-size: 0.95rem;
     color: var(--charcoal); background: var(--off-white);
     transition: border-color 0.2s; outline: none;
@@ -601,15 +488,15 @@
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
   #card-element {
-    padding: 0.85rem 1rem;
-    border: 1.5px solid var(--border); border-radius: 2px;
+    padding: 0.9rem 1.1rem;
+    border: 1.5px solid var(--border); border-radius: var(--r-md);
     background: var(--off-white); transition: border-color 0.2s;
   }
   #card-element.StripeElement--focus { border-color: var(--burgundy); }
 
   .secure-note {
     display: flex; align-items: center; gap: 0.5rem;
-    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    font-family: 'Instrument Sans', sans-serif; font-size: 0.7rem;
     color: var(--muted); margin-top: 1rem; margin-bottom: 1.5rem;
   }
   .secure-note svg { flex-shrink: 0; }
@@ -618,37 +505,25 @@
     width: 100%;
     background: var(--burgundy); color: #fff;
     font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 1.1rem; border: none; border-radius: 2px;
+    font-size: 0.9rem; letter-spacing: 0.03em;
+    padding: 1.1rem; border: none; border-radius: var(--r-pill);
     cursor: pointer; transition: background 0.2s;
   }
   #pay-btn:hover { background: var(--burgundy-dark); }
   #pay-btn:disabled { opacity: 0.5; cursor: default; }
-  #card-errors {
-    color: #c0392b; font-size: 0.85rem; margin-top: 0.5rem;
-    min-height: 1.2em;
-  }
-  .payment-success {
-    text-align: center; padding: 2rem 0;
-  }
-  .payment-success h3 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 2rem; color: var(--burgundy-dark); margin-bottom: 1rem;
-  }
+  #card-errors { color: #c0392b; font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.2em; }
+  .payment-success { text-align: center; padding: 2rem 0; }
+  .payment-success h3 { font-family: 'Instrument Serif', serif; font-size: 2rem; color: var(--burgundy-dark); margin-bottom: 1rem; }
   .payment-success p { color: var(--muted); line-height: 1.7; }
 
   /* ── CONTACT ── */
-  #contact {
-    padding: 7rem 4.5rem;
-    background: var(--cream);
-  }
+  #contact { padding: 7.5rem 3rem; background: var(--cream); }
   .contact-inner {
-    max-width: 760px; margin: 0 auto;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
-    align-items: start;
+    max-width: 900px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start;
   }
   .contact-info-label {
-    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    font-family: 'Instrument Sans', sans-serif; font-size: 0.7rem;
     letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--burgundy); margin-bottom: 1.5rem;
   }
@@ -658,14 +533,10 @@
     line-height: 1.15; margin-bottom: 1.5rem;
   }
   .contact-title em { font-style: italic; }
-  .contact-detail {
-    display: flex; flex-direction: column; gap: 1.2rem;
-  }
-  .contact-item {
-    display: flex; align-items: flex-start; gap: 0.8rem;
-  }
+  .contact-detail { display: flex; flex-direction: column; gap: 1.2rem; }
+  .contact-item { display: flex; align-items: flex-start; gap: 0.9rem; }
   .contact-icon {
-    width: 36px; height: 36px; border-radius: 2px;
+    width: 38px; height: 38px; border-radius: var(--r-pill);
     background: var(--burgundy); color: #fff;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; font-size: 0.9rem;
@@ -674,265 +545,290 @@
   .contact-item-text strong {
     display: block; font-family: 'Syne', sans-serif;
     font-weight: 700; color: var(--charcoal); font-size: 0.82rem;
-    letter-spacing: 0.05em; margin-bottom: 0.15rem;
+    letter-spacing: 0.03em; margin-bottom: 0.15rem;
   }
   .contact-item-text a { color: var(--burgundy); text-decoration: none; }
   .contact-item-text a:hover { text-decoration: underline; }
 
   .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
   .contact-form .form-input { background: #fff; }
-  textarea.form-input { resize: vertical; min-height: 120px; line-height: 1.6; }
+  textarea.form-input { resize: vertical; min-height: 120px; line-height: 1.6; border-radius: var(--r-md); }
   .form-submit {
     background: var(--burgundy); color: #fff;
     font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 1rem; border: none; border-radius: 2px;
+    font-size: 0.85rem; letter-spacing: 0.03em;
+    padding: 1.05rem; border: none; border-radius: var(--r-pill);
     cursor: pointer; transition: background 0.2s;
   }
   .form-submit:hover { background: var(--burgundy-dark); }
 
   /* ── FOOTER ── */
   footer {
-    background: var(--charcoal);
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.07);
     padding: 3rem; color: rgba(255,255,255,0.4);
+  }
+  .footer-inner {
+    max-width: 1240px; margin: 0 auto;
     display: flex; align-items: center; justify-content: space-between;
-    font-family: 'Space Mono', monospace; font-size: 0.72rem;
-    letter-spacing: 0.05em; flex-wrap: wrap; gap: 1rem;
+    flex-wrap: wrap; gap: 1.5rem;
   }
-  .footer-logo {
-    display: flex; align-items: center; gap: 0.45rem;
-    font-family: 'Syne', sans-serif;
-    font-size: 1.15rem; font-weight: 800; color: var(--sky-light);
-    letter-spacing: -0.01em;
-    text-transform: uppercase;
+  .footer-logo { display: flex; align-items: center; gap: 0.5rem; }
+  .footer-logo img { height: 1.05rem; width: auto; }
+  .footer-logo span {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+    color: var(--sky-light); text-transform: uppercase;
   }
-  .footer-logo img {
-    height: 1.05rem; width: auto;
+  .footer-links { display: flex; align-items: center; gap: 1.6rem; }
+  .footer-links a {
+    color: rgba(255,255,255,0.45); text-decoration: none;
+    display: flex; align-items: center; transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--sky); }
+  .footer-meta {
+    font-family: 'Instrument Sans', sans-serif; font-size: 0.72rem; letter-spacing: 0.04em;
   }
 
   /* ── ANIMATIONS ── */
-  [data-reveal] {
-    opacity: 0; transform: translateY(24px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
+  [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
   [data-reveal].visible { opacity: 1; transform: none; }
 
   /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    .layers-nav { width: 160px; padding: 0.8rem 0.9rem 1rem; top: 0.8rem; left: 0.8rem; }
-    .hero { padding: 7rem 1.5rem 3rem; }
+  @media (max-width: 860px) {
+    .hero { padding: 4.5rem 1.5rem 3.5rem; }
     #about { grid-template-columns: 1fr; padding: 5rem 1.5rem; gap: 3rem; }
-    #portfolio, #services, #contact { padding: 5rem 1.5rem; }
-    .proc-header { flex-direction: column; gap: 1rem; padding: 3rem 1.5rem 2rem; }
-    .proc-sub-right { text-align: left; max-width: 100%; }
+    #explore, #services, #contact { padding: 5rem 1.5rem; }
+    .stack-header { gap: 1rem; }
+    .stack-toggle { width: 40px; height: 40px; font-size: 1rem; }
+    .stack-pills { display: none; }
     .proc-columns { grid-template-columns: repeat(3, 1fr); }
-    .proc-footer-bar { padding: 1rem 1.5rem; }
     .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
     .modal { padding: 2rem; }
     .form-row { grid-template-columns: 1fr; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
   }
 </style>
 </head>
 <body>
 
-<!-- NAV — a real Layers panel -->
-<nav class="layers-nav">
-  <a class="nav-logo" href="#home"><img src="assets/wiired-logo.png" alt="WIIRED"/></a>
-  <div class="layers-head">Layers</div>
-  <a class="layer-row" href="#home"><span class="layer-dot" style="background:var(--burgundy)"></span>Hero</a>
-  <a class="layer-row" href="#about"><span class="layer-dot" style="background:var(--sky)"></span>About</a>
-  <a class="layer-row" href="#process"><span class="layer-dot" style="background:var(--lilac)"></span>Process</a>
-  <a class="layer-row" href="#portfolio"><span class="layer-dot" style="background:var(--sky)"></span>Portfolio</a>
-  <a class="layer-row" href="#services"><span class="layer-dot" style="background:var(--cream)"></span>Services</a>
-  <a class="layer-row" href="#contact"><span class="layer-dot" style="background:var(--lilac)"></span>Contact</a>
-  <a href="#services" class="layers-nav-cta">Book a Consult</a>
+<!-- NAV -->
+<a class="brand-mark" href="#home"><img src="assets/wiired-logo.png" alt="WIIRED"/></a>
+<nav class="nav-stack">
+  <a href="#about">About</a>
+  <a href="#process">Process</a>
+  <a href="#projects">Work</a>
+  <a href="#people">People</a>
+  <a href="#services">Services</a>
+  <a href="#contact">Contact</a>
+  <a href="#services" class="nav-cta-mini">Book a Consult</a>
 </nav>
 
 <!-- HERO -->
-<section class="hero canvas-frame" id="home">
-  <div class="frame-tag">01 · Hero</div>
-  <h1 class="hero-title"><img src="assets/wiired-logo.png" alt="WIIRED" class="hero-logo-img"/><img src="assets/studio-logo.png" alt="STUDIO" class="hero-title-studio"/></h1>
-  <p class="hero-sub">design & deploy</p>
-  <p class="hero-desc">
-    We build solutions at the intersection of engineering, design, and storytelling — creating seamless digital experiences for startups & small businesses.
-  </p>
-  <div class="hero-actions">
-    <a href="#services" class="btn-primary">Start a Project</a>
-    <a href="#portfolio" class="btn-outline">View Work</a>
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <img src="assets/wiired-logo.png" alt="WIIRED"/>
+      <span>Seattle-based studio</span>
+    </div>
+    <p class="hero-sub">A UI/UX studio partnering with startups and small businesses to build seamless digital experiences.</p>
+    <a href="#projects" class="hero-cta-link">View Our Work ↗</a>
   </div>
-  <div class="hero-scroll">
-    <span>scroll</span>
-    <div class="scroll-line"></div>
+  <div class="hero-deck">
+    <img src="assets/pitch-deck.png" alt="WIIRED Studio pitch deck preview"/>
   </div>
 </section>
 
-<!-- ABOUT -->
-<section id="about" class="canvas-frame">
-  <div class="frame-tag">02 · About</div>
-  <div data-reveal>
-    <div class="about-label">Who We Are</div>
-    <h2 class="about-title">Design that <em>works</em> as hard as you do.</h2>
-    <p class="about-body">
-      WIIRED Studio is a Seattle-based UI/UX design studio founded by two computer science students who believe great design is never just surface-level — it's structure, story, and strategy working together.
+<!-- ABOUT / WHAT WE DO -->
+<section id="about">
+  <div class="about-inner" data-reveal>
+    <div class="about-eyebrow">What We Do</div>
+    <p class="about-lede" id="aboutLede">
+      We're a Seattle-based studio blending <strong>UI/UX design</strong>, <strong>wireframing</strong>, and <strong>prototyping</strong> with real <strong>user research</strong> and sharp <strong>information architecture</strong> — then carrying it through to <strong>web development</strong> and lasting <strong>brand systems</strong> that actually get used.
     </p>
-    <p class="about-body">
-      We partner with startups and small businesses to transform complex ideas into clear, beautiful, and functional digital experiences.
-    </p>
-  </div>
-  <div data-reveal style="transition-delay:0.15s">
-    <div class="about-visual">
-      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(245,237,227,0.45);margin-bottom:1rem;">Services</div>
-      <div class="about-chips">
-        <span class="chip">UI/UX Design</span>
-        <span class="chip">Wireframing</span>
-        <span class="chip">Prototyping</span>
-        <span class="chip">Web Development</span>
-        <span class="chip">Brand Systems</span>
-        <span class="chip">User Research</span>
-        <span class="chip">Information Architecture</span>
-      </div>
+    <div class="about-meta-row">
+      <a href="#process" class="about-arrow">how?</a>
     </div>
   </div>
 </section>
 
-<!-- PROCESS -->
-<section id="process" class="canvas-frame">
-  <div class="frame-tag">03 · Process</div>
-  <div class="proc-header">
-    <div class="proc-header-left">
-      <div class="section-label">How We Work</div>
-      <h2 class="section-title">Our <em>process</em></h2>
-    </div>
-    <div class="proc-sub-right">Six steps from first brief to final retrospective.</div>
-  </div>
-  <div class="proc-timeline-wrap">
-    <div class="proc-timeline-line"></div>
-    <div class="proc-columns" id="procCols">
+<!-- EXPLORE: Process / Projects / People -->
+<section id="explore">
+  <div class="stack-wrap">
 
-      <div class="proc-col active" onmouseenter="activateStep(0)" onclick="activateStep(0)">
-        <div class="proc-col-accent"></div>
-        <div class="proc-col-inner">
-          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
-          <div class="proc-step-num">01</div>
-          <div class="proc-step-name">Discovery</div>
-          <div class="proc-step-desc">Audit the experience, map user flows, identify pain points, and define the real problem.</div>
+    <div class="stack-item open" id="process">
+      <div class="stack-header" onclick="toggleStack(this)">
+        <div class="stack-title">The Process</div>
+        <div class="stack-pills">
+          <span class="stack-pill">Discovery</span>
+          <span class="stack-pill">Wireframe</span>
+          <span class="stack-pill">Deploy</span>
         </div>
+        <div class="stack-toggle">→</div>
       </div>
+      <div class="stack-panel-wrap">
+        <div class="stack-panel-inner">
+          <p class="stack-subtitle">Our 6 step framework. We'll work with you at every phase.</p>
+          <div class="proc-timeline-wrap">
+            <div class="proc-columns" id="procCols">
 
-      <div class="proc-col" onmouseenter="activateStep(1)" onclick="activateStep(1)">
-        <div class="proc-col-accent"></div>
-        <div class="proc-col-inner">
-          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
-          <div class="proc-step-num">02</div>
-          <div class="proc-step-name">Wireframing</div>
-          <div class="proc-step-desc">Low and mid-fidelity frames to map structure and hierarchy before touching aesthetics.</div>
-        </div>
-      </div>
+              <div class="proc-col active" onmouseenter="activateStep(0)" onclick="activateStep(0)">
+                <div class="proc-col-accent"></div>
+                <div class="proc-col-inner">
+                  <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+                  <div class="proc-step-num">01</div>
+                  <div class="proc-step-name">Discovery</div>
+                  <div class="proc-step-desc">Audit the experience, map user flows, identify pain points, and define the real problem.</div>
+                </div>
+              </div>
 
-      <div class="proc-col" onmouseenter="activateStep(2)" onclick="activateStep(2)">
-        <div class="proc-col-accent"></div>
-        <div class="proc-col-inner">
-          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
-          <div class="proc-step-num">03</div>
-          <div class="proc-step-name">Redesign</div>
-          <div class="proc-step-desc">High-fidelity designs — updated palette, type, assets, and interactive UI elements.</div>
-        </div>
-      </div>
+              <div class="proc-col" onmouseenter="activateStep(1)" onclick="activateStep(1)">
+                <div class="proc-col-accent"></div>
+                <div class="proc-col-inner">
+                  <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+                  <div class="proc-step-num">02</div>
+                  <div class="proc-step-name">Wireframing</div>
+                  <div class="proc-step-desc">Low and mid-fidelity frames to map structure and hierarchy before touching aesthetics.</div>
+                </div>
+              </div>
 
-      <div class="proc-col" onmouseenter="activateStep(3)" onclick="activateStep(3)">
-        <div class="proc-col-accent"></div>
-        <div class="proc-col-inner">
-          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
-          <div class="proc-step-num">04</div>
-          <div class="proc-step-name">Implementation</div>
-          <div class="proc-step-desc">Approved designs become real, working products — responsive, functional, and deployed.</div>
-        </div>
-      </div>
+              <div class="proc-col" onmouseenter="activateStep(2)" onclick="activateStep(2)">
+                <div class="proc-col-accent"></div>
+                <div class="proc-col-inner">
+                  <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+                  <div class="proc-step-num">03</div>
+                  <div class="proc-step-name">Redesign</div>
+                  <div class="proc-step-desc">High-fidelity designs — updated palette, type, assets, and interactive UI elements.</div>
+                </div>
+              </div>
 
-      <div class="proc-col" onmouseenter="activateStep(4)" onclick="activateStep(4)">
-        <div class="proc-col-accent"></div>
-        <div class="proc-col-inner">
-          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
-          <div class="proc-step-num">05</div>
-          <div class="proc-step-name">Deployment</div>
-          <div class="proc-step-desc">Launch, configure, and make everything live, stable, and ready for real users.</div>
-        </div>
-      </div>
+              <div class="proc-col" onmouseenter="activateStep(3)" onclick="activateStep(3)">
+                <div class="proc-col-accent"></div>
+                <div class="proc-col-inner">
+                  <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+                  <div class="proc-step-num">04</div>
+                  <div class="proc-step-name">Implementation</div>
+                  <div class="proc-step-desc">Approved designs become real, working products — responsive, functional, and deployed.</div>
+                </div>
+              </div>
 
-      <div class="proc-col" onmouseenter="activateStep(5)" onclick="activateStep(5)">
-        <div class="proc-col-accent"></div>
-        <div class="proc-col-inner">
-          <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
-          <div class="proc-step-num">06</div>
-          <div class="proc-step-name">Retrospective</div>
-          <div class="proc-step-desc">Review what worked, what didn't, and how to iterate. Great design is a continuous loop.</div>
-        </div>
-      </div>
+              <div class="proc-col" onmouseenter="activateStep(4)" onclick="activateStep(4)">
+                <div class="proc-col-accent"></div>
+                <div class="proc-col-inner">
+                  <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+                  <div class="proc-step-num">05</div>
+                  <div class="proc-step-name">Deployment</div>
+                  <div class="proc-step-desc">Launch, configure, and make everything live, stable, and ready for real users.</div>
+                </div>
+              </div>
 
-    </div>
-  </div>
-  <div class="proc-footer-bar">
-    <div class="proc-footer-tag">design & deploy · Seattle, WA</div>
-  </div>
-</section>
+              <div class="proc-col" onmouseenter="activateStep(5)" onclick="activateStep(5)">
+                <div class="proc-col-accent"></div>
+                <div class="proc-col-inner">
+                  <div class="proc-dot-wrap"><div class="proc-dot"></div></div>
+                  <div class="proc-step-num">06</div>
+                  <div class="proc-step-name">Retrospective</div>
+                  <div class="proc-step-desc">Review what worked, what didn't, and how to iterate. Great design is a continuous loop.</div>
+                </div>
+              </div>
 
-<!-- PORTFOLIO -->
-<section id="portfolio" class="canvas-frame">
-  <div class="frame-tag">04 · Portfolio</div>
-  <div class="section-header" data-reveal>
-    <div class="section-label">Our Work</div>
-    <h2 class="section-title" style="color:var(--sky-light)">Selected <em style="color:var(--sky)">projects</em></h2>
-  </div>
-  <div class="portfolio-grid">
-    <div class="portfolio-card" data-reveal>
-      <div class="card-thumb card-thumb-crow">
-        CROW
-        <span class="card-badge">UW Bothell</span>
-      </div>
-      <div class="card-body">
-        <div class="card-title">The CROW Redesign</div>
-        <div class="card-desc">Redesigned a centralized student publishing platform at UW Bothell — improved navigation, reduced text density, and created an interactive UI for better content discoverability.</div>
-        <div class="card-tags">
-          <span class="card-tag">UX Audit</span>
-          <span class="card-tag">Information Architecture</span>
-          <span class="card-tag">UI Redesign</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="portfolio-card" data-reveal style="transition-delay:0.1s">
-      <div class="card-thumb card-thumb-wired">
-        WD
-        <span class="card-badge">Internal</span>
+
+    <div class="stack-item" id="projects">
+      <div class="stack-header" onclick="toggleStack(this)">
+        <div class="stack-title">The Work</div>
+        <div class="stack-pills">
+          <span class="stack-pill">design</span>
+          <span class="stack-pill">product</span>
+          <span class="stack-pill">code</span>
+        </div>
+        <div class="stack-toggle">→</div>
       </div>
-      <div class="card-body">
-        <div class="card-title">WIIRED Studio Website</div>
-        <div class="card-desc">Our own studio site — designed and deployed through our full 6-step process. Dogfooding at its finest.</div>
-        <div class="card-tags">
-          <span class="card-tag">Brand Identity</span>
-          <span class="card-tag">Web Development</span>
-          <span class="card-tag">Design System</span>
+      <div class="stack-panel-wrap">
+        <div class="stack-panel-inner">
+          <p class="stack-subtitle">Our favorite projects as well as what's in progress — because we share every step of the process.</p>
+          <div class="work-grid">
+            <div class="work-card">
+              <span class="work-sparkle">✦</span>
+              <div class="work-tags">
+                <span class="work-tag">Case Study</span>
+                <span class="work-tag">UI/UX</span>
+              </div>
+              <p class="work-desc">Redesigned a centralized student publishing platform at UW Bothell — improved navigation, reduced text density, and created an interactive UI for better content discoverability.</p>
+              <div class="work-name">The CROW</div>
+            </div>
+            <div class="work-card">
+              <span class="work-sparkle">✦</span>
+              <div class="work-tags">
+                <span class="work-tag">Case Study</span>
+                <span class="work-tag">Web Dev</span>
+              </div>
+              <p class="work-desc">Our own studio site — designed and deployed through our full 6-step process. Dogfooding at its finest.</p>
+              <div class="work-name">WIIRED Studio</div>
+            </div>
+            <div class="work-card">
+              <span class="work-sparkle">✦</span>
+              <div class="work-tags">
+                <span class="work-tag">Open</span>
+                <span class="work-tag">Collab</span>
+              </div>
+              <p class="work-desc">We're actively looking for our next collaboration. Startups, small businesses, research labs — if you have a problem worth solving, let's talk.</p>
+              <div class="work-name">Your Project</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="portfolio-card" data-reveal style="transition-delay:0.2s">
-      <div class="card-thumb card-thumb-tbd">
-        ?
-        <span class="card-badge">Coming Soon</span>
+
+    <div class="stack-item" id="people">
+      <div class="stack-header" onclick="toggleStack(this)">
+        <div class="stack-title">The People</div>
+        <div class="stack-pills">
+          <span class="stack-pill">Seattle</span>
+          <span class="stack-pill">Est. 2024</span>
+          <span class="stack-pill">2 Founders</span>
+        </div>
+        <div class="stack-toggle">→</div>
       </div>
-      <div class="card-body">
-        <div class="card-title">Your Project Here</div>
-        <div class="card-desc">We're actively looking for our next collaboration. Startups, small businesses, research labs — if you have a problem worth solving, let's talk.</div>
-        <div class="card-tags">
-          <span class="card-tag">Open to Work</span>
+      <div class="stack-panel-wrap">
+        <div class="stack-panel-inner">
+          <div class="people-panel">
+            <div class="people-content">
+              <div class="people-shapes-wrap" id="peopleShapesWrap">
+                <img src="assets/people-shapes.png" alt="" class="people-shapes-img"/>
+                <div class="shape-label label-founders">
+                  <div class="shape-label-title">2 Founders</div>
+                  <div class="shape-label-sub">students studying computer science &amp; data science</div>
+                </div>
+                <div class="shape-label label-based">
+                  <div class="shape-label-title">Based in</div>
+                  <div class="shape-label-sub">Seattle, WA</div>
+                </div>
+                <div class="shape-label label-est">
+                  <div class="shape-label-title">Est.</div>
+                  <div class="shape-label-sub">April 2026</div>
+                </div>
+              </div>
+            </div>
+            <img src="assets/nz.png" alt="The WIIRED Studio founders" class="people-photo"/>
+            <div class="people-links">
+              <span class="people-links-caption">view our individual work:</span>
+              <a href="https://nandinimistry.lovable.app/" target="_blank" rel="noopener" class="people-link-pill">nandini</a>
+              <a href="https://zainab-portfolio-mu.vercel.app/" target="_blank" rel="noopener" class="people-link-pill">zainab</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 </section>
 
 <!-- SERVICES / PRICING -->
-<section id="services" class="canvas-frame">
-  <div class="frame-tag">05 · Services</div>
+<section id="services">
   <div class="section-header" data-reveal>
     <div class="section-label">Services & Pricing</div>
     <h2 class="section-title">Simple, <em>transparent</em> pricing</h2>
@@ -952,7 +848,7 @@
       <button class="plan-btn" onclick="openModal('Discovery Sprint', '$299', 299)">Get Started</button>
     </div>
     <div class="pricing-card featured" data-reveal style="transition-delay:0.1s">
-      <div class="featured-badge">Popular</div>
+      <div class="featured-badge">our fave</div>
       <div class="plan-name">Full Redesign</div>
       <div class="plan-price">$899</div>
       <div class="plan-period">per project</div>
@@ -987,8 +883,7 @@
 </section>
 
 <!-- CONTACT -->
-<section id="contact" class="canvas-frame">
-  <div class="frame-tag">06 · Contact</div>
+<section id="contact">
   <div class="contact-inner">
     <div data-reveal>
       <div class="contact-info-label">Get in Touch</div>
@@ -1031,10 +926,19 @@
 </section>
 
 <!-- FOOTER -->
-<footer class="canvas-frame">
-  <div class="frame-tag">07 · Footer</div>
-  <div class="footer-logo"><img src="assets/wiired-logo.png" alt="WIIRED"/>Studio</div>
-  <div>© 2026 WIIRED Studio · Seattle, WA</div>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><img src="assets/wiired-logo.png" alt="WIIRED"/><span>Studio</span></div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/wiiredstudio/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="mailto:wiiredstudio@gmail.com" aria-label="Email">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg>
+      </a>
+    </div>
+    <div class="footer-meta">© 2026 WIIRED Studio · Seattle, WA</div>
+  </div>
 </footer>
 
 <!-- PAYMENT MODAL -->
@@ -1080,29 +984,6 @@
   </div>
 </div>
 
-<!-- CANVAS FLOATERS (decorative, draggable) -->
-<div class="floater figma-toolbar" aria-hidden="true">
-  <span class="tool-btn active">↖</span>
-  <span class="tool-btn">▢</span>
-  <span class="tool-btn">✎</span>
-  <span class="tool-btn">T</span>
-  <span class="tool-btn">💬</span>
-</div>
-
-<div class="floater cursor-tag" aria-hidden="true">
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 1l5.5 13 2-5.5L14 6.5z" fill="#b8dde8" stroke="#1b1c1f" stroke-width="1"/></svg>
-  <span>Nami</span>
-</div>
-
-<div class="floater sticky-note" aria-hidden="true">shipping soon 🚀</div>
-
-<div class="floater swatch-cluster" aria-hidden="true">
-  <span class="swatch" style="background:var(--burgundy)"></span>
-  <span class="swatch" style="background:var(--sky)"></span>
-  <span class="swatch" style="background:var(--lilac)"></span>
-  <span class="swatch" style="background:var(--cream)"></span>
-</div>
-
 <script>
 // ── PROCESS TIMELINE ──
 function activateStep(i) {
@@ -1111,12 +992,120 @@ function activateStep(i) {
   });
 }
 
+// ── EXPLORE STACK (Process / Projects / People accordion) ──
+function toggleStack(headerEl) {
+  const item = headerEl.closest('.stack-item');
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.stack-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) {
+    item.classList.add('open');
+    if (item.id === 'people') {
+      const wrap = document.getElementById('peopleShapesWrap');
+      wrap.classList.remove('fall');
+      void wrap.offsetWidth;
+      wrap.classList.add('fall');
+    }
+  }
+}
+function openStackFromHash() {
+  const target = document.getElementById(location.hash.slice(1));
+  if (target && target.classList.contains('stack-item')) {
+    document.querySelectorAll('.stack-item').forEach(i => i.classList.remove('open'));
+    target.classList.add('open');
+    if (target.id === 'people') {
+      const wrap = document.getElementById('peopleShapesWrap');
+      wrap.classList.remove('fall');
+      void wrap.offsetWidth;
+      wrap.classList.add('fall');
+    }
+  }
+}
+window.addEventListener('hashchange', openStackFromHash);
+
 // ── SCROLL REVEAL ──
 const reveals = document.querySelectorAll('[data-reveal]');
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
 }, { threshold: 0.12 });
 reveals.forEach(el => observer.observe(el));
+
+// ── TYPEWRITER (About / What We Do) ──
+function initTypewriter(el) {
+  el.style.minHeight = el.offsetHeight + 'px';
+
+  const chars = [];
+  el.childNodes.forEach(node => {
+    if (node.nodeType === 3) {
+      for (const ch of node.textContent) chars.push({ ch, bold: false });
+    } else if (node.nodeType === 1 && node.tagName === 'STRONG') {
+      for (const ch of node.textContent) chars.push({ ch, bold: true });
+    }
+  });
+  el.textContent = '';
+
+  function render(count, showCursor) {
+    let html = '', i = 0;
+    while (i < count) {
+      const bold = chars[i].bold;
+      let run = '';
+      while (i < count && chars[i].bold === bold) { run += chars[i].ch; i++; }
+      html += bold ? `<strong>${run}</strong>` : run;
+    }
+    if (showCursor) html += '<span class="type-cursor">|</span>';
+    el.innerHTML = html;
+  }
+
+  let timer = null;
+  let generation = 0;
+
+  function startTyping() {
+    generation++;
+    const gen = generation;
+    el.innerHTML = '';
+    let i = 0;
+    const total = chars.length;
+    (function tick() {
+      if (gen !== generation) return;
+      i++;
+      render(i, true);
+      if (i < total) {
+        timer = setTimeout(tick, 14 + Math.random() * 12);
+      } else {
+        timer = setTimeout(() => { if (gen === generation) render(total, false); }, 500);
+      }
+    })();
+  }
+
+  function resetTyping() {
+    generation++;
+    if (timer) clearTimeout(timer);
+    el.innerHTML = '';
+  }
+
+  const typeObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => { e.isIntersecting ? startTyping() : resetTyping(); });
+  }, { threshold: 0.35 });
+  typeObserver.observe(el);
+}
+const aboutLede = document.getElementById('aboutLede');
+if (aboutLede) initTypewriter(aboutLede);
+
+// ── HERO DECK POP-IN ──
+const heroDeck = document.querySelector('.hero-deck');
+if (heroDeck) {
+  const deckObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        heroDeck.classList.remove('pop');
+        void heroDeck.offsetWidth;
+        heroDeck.classList.add('pop');
+      } else {
+        heroDeck.classList.remove('pop');
+      }
+    });
+  }, { threshold: 0.15 });
+  deckObserver.observe(heroDeck);
+}
 
 // ── STRIPE SETUP ──
 // NOTE: Replace with your actual Stripe publishable key from https://dashboard.stripe.com/apikeys
@@ -1211,35 +1200,6 @@ function handleContactForm(e) {
   success.style.display = 'block';
   setTimeout(() => success.style.display = 'none', 5000);
 }
-
-// ── CANVAS FLOATERS (draggable decorative elements) ──
-let topFloaterZ = 300;
-document.querySelectorAll('.floater').forEach(el => {
-  el.addEventListener('pointerdown', e => {
-    const rect = el.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-    el.style.left = rect.left + 'px';
-    el.style.top = rect.top + 'px';
-    el.style.right = 'auto';
-    el.style.bottom = 'auto';
-    el.style.zIndex = ++topFloaterZ;
-    el.classList.add('dragging');
-    el.setPointerCapture(e.pointerId);
-
-    function onMove(ev) {
-      el.style.left = (ev.clientX - offsetX) + 'px';
-      el.style.top = (ev.clientY - offsetY) + 'px';
-    }
-    function onUp() {
-      el.classList.remove('dragging');
-      el.removeEventListener('pointermove', onMove);
-      el.removeEventListener('pointerup', onUp);
-    }
-    el.addEventListener('pointermove', onMove);
-    el.addEventListener('pointerup', onUp);
-  });
-});
 </script>
 </body>
 </html>
