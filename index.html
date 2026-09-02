@@ -387,51 +387,65 @@
   /* ── SERVICES / PRICING ── */
   #services { padding: 7.5rem 3rem; background: var(--sky-light); }
   .pricing-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem; max-width: 1040px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.75rem; max-width: 860px; margin: 0 auto;
   }
   .pricing-card {
     background: #fff;
     border: 1px solid var(--border);
-    border-radius: var(--r-lg); padding: 2.6rem 2.1rem;
+    border-radius: var(--r-lg); padding: 2.6rem 2.3rem;
     position: relative; overflow: hidden;
     transition: transform 0.25s, box-shadow 0.25s;
   }
   .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(125,45,69,0.14); }
   .pricing-card.featured { background: var(--burgundy); border-color: var(--burgundy); }
-  .featured-badge {
-    position: absolute; top: 1.4rem; right: 1.4rem;
-    background: var(--sky-light); color: var(--burgundy-dark);
-    font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.1rem;
-    padding: 0.3rem 1rem; border-radius: var(--r-pill);
-    transform: rotate(4deg);
+  .card-dot {
+    position: absolute; width: 7px; height: 7px; border-radius: 50%;
+    border: 1.5px solid var(--border); opacity: 0.9;
   }
+  .featured .card-dot { border-color: rgba(255,255,255,0.3); }
+  .card-dot.tl { top: 1.1rem; left: 1.1rem; }
+  .card-dot.tr { top: 1.1rem; right: 1.1rem; }
+  .card-dot.bl { bottom: 1.1rem; left: 1.1rem; }
+  .card-dot.br { bottom: 1.1rem; right: 1.1rem; }
+  .card-glow {
+    position: absolute; width: 190px; height: 190px; border-radius: 50%;
+    right: -70px; bottom: -80px; opacity: 0.35; pointer-events: none;
+    background: radial-gradient(circle, var(--sky) 0%, transparent 70%);
+  }
+  .featured .card-glow { background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%); }
   .plan-name {
-    font-family: 'Instrument Sans', sans-serif; font-size: 0.75rem;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--burgundy); margin-bottom: 0.9rem;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.3rem;
+    color: var(--charcoal); margin-bottom: 1.4rem; position: relative; z-index: 1;
   }
-  .featured .plan-name { color: var(--sky-light); }
-  .plan-price { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.8rem; color: var(--charcoal); line-height: 1; margin-bottom: 0.3rem; }
+  .featured .plan-name { color: #fff; }
+  .plan-price-row { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 1.9rem; position: relative; z-index: 1; }
+  .plan-price { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.6rem; color: var(--burgundy); line-height: 1; }
   .featured .plan-price { color: #fff; }
-  .plan-period { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.9rem; }
+  .plan-period { font-size: 0.82rem; color: var(--muted); }
   .featured .plan-period { color: rgba(255,255,255,0.6); }
-  .plan-features { list-style: none; margin-bottom: 2rem; }
+  .plan-features { list-style: none; margin-bottom: 1.6rem; position: relative; z-index: 1; }
   .plan-features li {
     font-size: 0.9rem; color: var(--muted);
-    padding: 0.6rem 0; border-bottom: 1px solid var(--border);
+    padding: 0.55rem 0; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 0.7rem;
   }
   .featured .plan-features li { color: rgba(255,255,255,0.75); border-bottom-color: rgba(255,255,255,0.1); }
-  .plan-features li::before { content: '→'; color: var(--burgundy); font-family: 'Instrument Sans', sans-serif; font-size: 0.85rem; }
+  .plan-features li::before { content: '✦'; color: var(--burgundy); font-size: 0.7rem; }
   .featured .plan-features li::before { color: var(--sky-light); }
+  .plan-desc {
+    font-size: 0.88rem; line-height: 1.5; color: var(--muted);
+    margin-bottom: 1.9rem; position: relative; z-index: 1;
+  }
+  .featured .plan-desc { color: rgba(255,255,255,0.7); }
   .plan-btn {
-    width: 100%;
+    display: inline-block; width: auto;
     background: var(--burgundy); color: #fff;
     font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 0.82rem; letter-spacing: 0.04em;
-    padding: 0.95rem; border: 2px solid var(--burgundy);
+    font-size: 0.82rem; letter-spacing: 0.04em; text-decoration: none;
+    padding: 0.85rem 1.7rem; border: 2px solid var(--burgundy);
     border-radius: var(--r-pill); cursor: pointer; transition: all 0.2s;
+    position: relative; z-index: 1;
   }
   .plan-btn:hover { background: var(--burgundy-dark); border-color: var(--burgundy-dark); }
   .featured .plan-btn { background: var(--sky-light); color: var(--burgundy-dark); border-color: var(--sky-light); }
@@ -831,55 +845,46 @@
 <section id="services">
   <div class="section-header" data-reveal>
     <div class="section-label">Services & Pricing</div>
-    <h2 class="section-title">Simple, <em>transparent</em> pricing</h2>
+    <h2 class="section-title">What package <em>fits you?</em></h2>
   </div>
   <div class="pricing-grid">
     <div class="pricing-card" data-reveal>
-      <div class="plan-name">Discovery Sprint</div>
-      <div class="plan-price">$299</div>
-      <div class="plan-period">one-time</div>
+      <div class="card-dot tl"></div><div class="card-dot tr"></div>
+      <div class="card-dot bl"></div><div class="card-dot br"></div>
+      <div class="card-glow"></div>
+      <div class="plan-name">Discovery Call</div>
+      <div class="plan-price-row">
+        <div class="plan-price">Free</div>
+        <div class="plan-period">30-min intro</div>
+      </div>
       <ul class="plan-features">
-        <li>UX audit of existing product</li>
-        <li>Pain point identification</li>
-        <li>User flow mapping</li>
-        <li>Problem definition report</li>
-        <li>2-week turnaround</li>
+        <li>1:1 strategy session</li>
+        <li>Project scoping & advice</li>
+        <li>Personalized recommendations</li>
+        <li>Zero obligation</li>
       </ul>
-      <button class="plan-btn" onclick="openModal('Discovery Sprint', '$299', 299)">Get Started</button>
+      <p class="plan-desc">Perfect if you're not sure where to start — let's talk through your idea and map out next steps.</p>
+      <a href="#contact" class="plan-btn">Contact Us</a>
     </div>
     <div class="pricing-card featured" data-reveal style="transition-delay:0.1s">
-      <div class="featured-badge">our fave</div>
-      <div class="plan-name">Full Redesign</div>
-      <div class="plan-price">$899</div>
-      <div class="plan-period">per project</div>
+      <div class="card-dot tl"></div><div class="card-dot tr"></div>
+      <div class="card-dot bl"></div><div class="card-dot br"></div>
+      <div class="card-glow"></div>
+      <div class="plan-name">Full Project</div>
+      <div class="plan-price-row">
+        <div class="plan-price">Custom</div>
+        <div class="plan-period">tailored scope</div>
+      </div>
       <ul class="plan-features">
-        <li>Everything in Discovery</li>
-        <li>Wireframes (lo & mid-fi)</li>
-        <li>High-fidelity designs</li>
-        <li>Interactive prototype</li>
-        <li>Design system & assets</li>
-        <li>1 round of revisions</li>
+        <li>Design + development</li>
+        <li>Flexible scope & timeline</li>
+        <li>Transparent pricing</li>
+        <li>Dedicated support</li>
       </ul>
-      <button class="plan-btn" onclick="openModal('Full Redesign', '$899', 899)">Get Started</button>
-    </div>
-    <div class="pricing-card" data-reveal style="transition-delay:0.2s">
-      <div class="plan-name">Design & Deploy</div>
-      <div class="plan-price">$1,799</div>
-      <div class="plan-period">per project</div>
-      <ul class="plan-features">
-        <li>Everything in Full Redesign</li>
-        <li>Full web implementation</li>
-        <li>Responsive development</li>
-        <li>Deployment & launch</li>
-        <li>Retrospective session</li>
-        <li>30-day post-launch support</li>
-      </ul>
-      <button class="plan-btn" onclick="openModal('Design & Deploy', '$1,799', 1799)">Get Started</button>
+      <p class="plan-desc">Every project is different — we'll scope your goals, timeline, and budget together, then build a plan that fits.</p>
+      <a href="#contact" class="plan-btn">Contact Us</a>
     </div>
   </div>
-  <p style="text-align:center; margin-top:2.5rem; color:var(--muted); font-size:0.88rem;">
-    Need something custom? <a href="#contact" style="color:var(--burgundy); font-weight:700;">Let's talk →</a>
-  </p>
 </section>
 
 <!-- CONTACT -->
